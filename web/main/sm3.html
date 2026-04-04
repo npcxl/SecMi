@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+
+<html class="light scroll-smooth" lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(195, 197, 217, 0.2);
+    }
+
+    /* 文档区：纯 JS 示例 */
+    .js-code {
+      font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.65;
+      tab-size: 2;
+      -moz-tab-size: 2;
+      background: #0b1020;
+      color: #cbd5e1;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      white-space: pre;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .js-code .js-cmt {
+      color: #64748b;
+    }
+
+    #doc.doc-article {
+      width: 100%;
+      max-width: none;
+      min-width: 0;
+      margin: 0;
+      padding-bottom: 3rem;
+      color: #1e293b;
+      box-sizing: border-box;
+    }
+
+    #doc.doc-article h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    #doc.doc-article h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      color: #0f172a;
+    }
+
+    #doc.doc-article p,
+    #doc.doc-article ul {
+      font-size: 0.875rem;
+      line-height: 1.75;
+      color: #334155;
+    }
+
+    #doc.doc-article ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+
+    #doc.doc-article .doc-lead {
+      margin-bottom: 1rem;
+    }
+
+    #doc.doc-article .doc-note {
+      font-size: 0.8125rem;
+      color: #475569;
+      background: #f8fafc;
+      border-left: 3px solid #94a3b8;
+      padding: 0.65rem 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    #doc.doc-article .doc-code-wrap {
+      position: relative;
+      margin: 0.75rem 0 1.5rem;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    #doc.doc-article .doc-copy-btn {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      z-index: 2;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      cursor: pointer;
+    }
+
+    #doc.doc-article .doc-copy-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    #doc.doc-article pre[class*="language-"] {
+      margin: 0;
+      padding: 2.25rem 1rem 1rem 1rem;
+      border-radius: 6px;
+      font-size: 12.5px;
+      line-height: 1.6;
+      border: 1px solid #334155;
+      box-shadow: none;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow-x: auto;
+    }
+
+    #doc.doc-article pre code[class*="language-"] {
+      font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+      display: block;
+      width: 100%;
+    }
+
+    /* Custom scrollbar for technical look */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #c3c5d9;
+      border-radius: 10px;
+    }
+
+    /* 复制成功提示（toast） */
+    #copy-toast {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      z-index: 99999;
+      padding: 0.55rem 1.1rem;
+      border-radius: 0.5rem;
+      background: #0f172a;
+      color: #f8fafc;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.28);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    #copy-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* gm.js 加载横幅（与 test.html 一致） */
+    #gm-load-banner {
+      font-size: 13px;
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: 1px solid #f6d399;
+      background: #fef7ed;
+      color: #92520a;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #gm-load-banner::before {
+      content: "●";
+      font-size: 10px;
+    }
+
+    #gm-load-banner.ready {
+      background: #edfaf3;
+      border-color: #9ee6c0;
+      color: #0d7a42;
+    }
+
+    #gm-load-banner.err {
+      background: #fef2f2;
+      border-color: #fca5a5;
+      color: #b91c1c;
+    }
+
+    /* SM2 演示区：DOM/类名与 test.html #sec-sm2 同源 */
+    .sm2-demo {
+      --c-bg: #f4f5f7;
+      --c-surface: #ffffff;
+      --c-border: #e2e4e9;
+      --c-border-lo: #eff0f3;
+      --c-text: #1a1d23;
+      --c-text-2: #5a6070;
+      --c-text-3: #8a92a4;
+      --c-accent: #1a56db;
+      --c-accent-hv: #1447c0;
+      --c-ok: #0d7a42;
+      --c-ok-bg: #edfaf3;
+      --c-ok-bd: #9ee6c0;
+      --c-err: #b91c1c;
+      --c-err-bg: #fef2f2;
+      --c-err-bd: #fca5a5;
+      --c-code-bg: #f0f2f5;
+      --r-card: 8px;
+      --r-input: 6px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, .08);
+      --font-mono: ui-monospace, "Cascadia Code", Consolas, "SF Mono", monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--c-text);
+    }
+
+    .sm2-demo .card {
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .sm2-demo .card-header {
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--c-border-lo);
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .sm2-demo .card-header h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--c-text);
+    }
+
+    .sm2-demo .card-header .tag {
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--c-code-bg);
+      color: var(--c-text-2);
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: .04em;
+    }
+
+    .sm2-demo .card-body {
+      padding: 16px 18px;
+    }
+
+    .sm2-demo .sub-section {
+      padding-top: 14px;
+      margin-top: 14px;
+      border-top: 1px solid var(--c-border-lo);
+    }
+
+    .sm2-demo .sub-section:first-child {
+      padding-top: 0;
+      margin-top: 0;
+      border-top: none;
+    }
+
+    .sm2-demo .sub-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--c-text);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sm2-demo .sub-title .badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--c-accent);
+      background: #eff4ff;
+      border: 1px solid #c7d7fd;
+      border-radius: 4px;
+      padding: 1px 6px;
+    }
+
+    .sm2-demo .field {
+      margin-bottom: 10px;
+    }
+
+    .sm2-demo .field-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--c-text-2);
+      margin-bottom: 4px;
+    }
+
+    .sm2-demo .field-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .sm2-demo textarea,
+    .sm2-demo input[type="text"],
+    .sm2-demo select {
+      display: block;
+      width: 100%;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--c-text);
+      background: var(--c-bg);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-input);
+      padding: 7px 10px;
+      outline: none;
+    }
+
+    .sm2-demo textarea:focus,
+    .sm2-demo input[type="text"]:focus,
+    .sm2-demo select:focus {
+      border-color: var(--c-accent);
+      box-shadow: 0 0 0 3px rgba(26, 86, 219, .12);
+      background: var(--c-surface);
+    }
+
+    .sm2-demo textarea:disabled,
+    .sm2-demo input[type="text"]:disabled,
+    .sm2-demo select:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      background: var(--c-bg);
+    }
+
+    .sm2-demo textarea {
+      min-height: 68px;
+      resize: vertical;
+    }
+
+    .sm2-demo .input-mono-ro {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      background: var(--c-code-bg);
+      border: 1px solid var(--c-border-lo);
+      border-radius: var(--r-input);
+      padding: 6px 10px;
+      color: var(--c-text);
+      width: 100%;
+      word-break: break-all;
+      min-height: 32px;
+      display: block;
+    }
+
+    .sm2-demo .field-row .input-mono-ro {
+      flex: 1;
+    }
+
+    .sm2-demo .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 7px 14px;
+      min-height: 34px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--r-input);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background .15s, border-color .15s;
+      white-space: nowrap;
+    }
+
+    .sm2-demo .btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .sm2-demo .btn-primary {
+      background: var(--c-accent);
+      color: #fff;
+      border-color: var(--c-accent);
+    }
+
+    .sm2-demo .btn-primary:not(:disabled):hover {
+      background: var(--c-accent-hv);
+      border-color: var(--c-accent-hv);
+    }
+
+    .sm2-demo .btn-default {
+      background: var(--c-surface);
+      color: var(--c-text);
+      border-color: var(--c-border);
+    }
+
+    .sm2-demo .btn-default:not(:disabled):hover {
+      background: var(--c-bg);
+      border-color: #bcc0cc;
+    }
+
+    .sm2-demo .btn-ghost {
+      background: transparent;
+      color: var(--c-text-2);
+      border-color: transparent;
+      padding: 4px 8px;
+      min-height: 28px;
+      font-size: 12px;
+    }
+
+    .sm2-demo .btn-ghost:not(:disabled):hover {
+      background: var(--c-bg);
+      color: var(--c-text);
+    }
+
+    .sm2-demo .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .sm2-demo .out-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: var(--c-code-bg);
+      border: 1px solid var(--c-border-lo);
+      border-radius: var(--r-input);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--c-text);
+      word-break: break-all;
+      white-space: pre-wrap;
+      min-height: 36px;
+      position: relative;
+    }
+
+    .sm2-demo .out-box.ok {
+      background: var(--c-ok-bg);
+      border-color: var(--c-ok-bd);
+      color: var(--c-ok);
+    }
+
+    .sm2-demo .out-box.err {
+      background: var(--c-err-bg);
+      border-color: var(--c-err-bd);
+      color: var(--c-err);
+    }
+
+    .sm2-demo .copy-wrap {
+      position: relative;
+    }
+
+    .sm2-demo .copy-wrap .btn-copy {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11px;
+      cursor: pointer;
+      color: var(--c-text-2);
+      font-weight: 500;
+      z-index: 1;
+    }
+
+    .sm2-demo .copy-wrap .btn-copy:hover {
+      background: var(--c-bg);
+    }
+
+    .sm2-demo .hint {
+      font-size: 12px;
+      color: var(--c-text-3);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .sm2-demo .divider {
+      border: none;
+      border-top: 1px solid var(--c-border-lo);
+      margin: 14px 0;
+    }
+
+    .sm2-demo .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .sm2-demo .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-variant": "#d8e3f7",
+            "on-secondary-fixed": "#181c23",
+            "on-primary-container": "#eeefff",
+            "on-primary": "#ffffff",
+            "surface-tint": "#004fe5",
+            "secondary-fixed-dim": "#c3c6d1",
+            "primary": "#0047cf",
+            "secondary-fixed": "#dfe2ed",
+            "inverse-on-surface": "#eaf1ff",
+            "surface-container-lowest": "#ffffff",
+            "outline-variant": "#c3c5d9",
+            "on-secondary-container": "#5f636c",
+            "tertiary-container": "#ae5300",
+            "tertiary-fixed": "#ffdbc8",
+            "on-surface": "#111c2a",
+            "on-secondary": "#ffffff",
+            "surface-dim": "#cfdbee",
+            "surface-container-highest": "#d8e3f7",
+            "primary-container": "#165dff",
+            "error-container": "#ffdad6",
+            "on-error": "#ffffff",
+            "on-tertiary-fixed-variant": "#733500",
+            "on-error-container": "#93000a",
+            "inverse-primary": "#b6c4ff",
+            "surface-bright": "#f8f9ff",
+            "inverse-surface": "#263140",
+            "surface-container-high": "#dee9fc",
+            "tertiary": "#894000",
+            "error": "#ba1a1a",
+            "on-background": "#111c2a",
+            "on-primary-fixed-variant": "#003bb0",
+            "on-primary-fixed": "#00164f",
+            "secondary": "#5b5e68",
+            "on-surface-variant": "#434656",
+            "surface-container-low": "#eff4ff",
+            "surface-container": "#e5eeff",
+            "secondary-container": "#dcdfea",
+            "outline": "#737688",
+            "on-tertiary-fixed": "#311300",
+            "on-tertiary": "#ffffff",
+            "background": "#f8f9ff",
+            "tertiary-fixed-dim": "#ffb689",
+            "primary-fixed": "#dce1ff",
+            "surface": "#f8f9ff",
+            "on-secondary-fixed-variant": "#434750",
+            "primary-fixed-dim": "#b6c4ff",
+            "on-tertiary-container": "#ffece2"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-surface text-on-surface antialiased">
+  <header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur border-b border-slate-200/60">
+    <div class="flex items-center justify-between h-14 px-6 max-w-[100vw]">
+      <a href="../index.html" class="text-lg font-bold text-slate-900 hover:text-primary transition-colors">SECMI</a>
+      <nav class="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-slate-600">
+        <a class="hover:text-slate-900" href="../index.html">首页</a>
+        <a class="text-primary font-semibold" href="#tool">在线工具</a>
+        <a class="hover:text-slate-900" href="#doc-functions">函数与方法</a>
+      </nav>
+    </div>
+  </header>
+  <div class="flex pt-14 h-screen overflow-hidden">
+    <aside class="h-screen w-64 fixed left-0 top-14 bg-slate-50 flex flex-col p-4 border-r border-slate-200/60 text-sm font-medium">
+      <div class="px-1 pb-3 mb-2 border-b border-slate-200/50">
+        <p class="text-sm font-bold text-slate-900 tracking-tight">SECMI</p>
+        <p class="text-[10px] text-slate-500 mt-1">gm.js 本地计算</p>
+      </div>
+      <nav class="flex-1 space-y-1 overflow-y-auto" aria-label="算法与本页目录">
+        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100" href="sm2.html">
+          <span class="material-symbols-outlined text-[20px]">deployed_code</span>
+          <span>SM2</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-white text-primary shadow-sm border border-slate-200/80" href="sm3.html" aria-current="page">
+          <span class="material-symbols-outlined text-[20px]">fingerprint</span>
+          <span>SM3</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100" href="sm4.html">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">lock</span>
+          <span>SM4</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100" href="sm4-file.html">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">folder_open</span>
+          <span>SM4 大文件</span>
+        </a>
+        <div class="pt-3 mt-2 border-t border-slate-200/60">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 mb-1">本页（SM3）</p>
+        </div>
+        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100" href="#tool">
+          <span class="material-symbols-outlined text-[20px]">touch_app</span>
+          <span>在线工具</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100" href="#doc-functions">
+          <span class="material-symbols-outlined text-[20px]">functions</span>
+          <span>函数与方法</span>
+        </a>
+      </nav>
+    </aside>
+    <!-- Main Content Area -->
+    <main class="ml-64 flex flex-1 min-h-0 w-0">
+      <div class="flex-shrink-0 w-full max-w-[min(100%,520px)] overflow-y-auto bg-surface-bright px-4 py-6 border-r border-slate-200/70">
+          <section id="tool" class="scroll-mt-24">
+            <h2 class="text-lg font-bold text-on-surface mb-2">SM3 在线工具</h2>
+            <p class="text-xs text-on-surface-variant leading-relaxed mb-4">
+              本地 gm.js，消息与摘要不上传。请先构建根目录 <code class="font-mono text-[11px] bg-slate-100 px-1 rounded">gm.js</code>。
+            </p>
+            <div class="rounded-2xl border border-outline-variant/40 bg-white p-6 shadow-sm space-y-4">
+              <div id="gm-load-banner" role="status" aria-live="polite">正在加载 gm.js（SECMI）…</div>
+              <div class="text-sm text-on-surface-variant bg-surface-container-low/80 rounded-lg px-4 py-3 border border-outline-variant/30">
+                <strong>本地处理：</strong>消息与计算结果仅在当前浏览器内存中使用，不会上传。请先执行 <code class="text-xs font-mono bg-white px-1 rounded">build.bat</code> / <code class="text-xs font-mono">build.sh</code> 生成根目录 <code class="text-xs font-mono">gm.js</code>。
+              </div>
+              <div class="sm2-demo">
+                <section class="card" id="sec-sm3" aria-labelledby="sm3-title">
+                  <div class="card-header">
+                    <h2 id="sm3-title">SM3 杂凑</h2>
+                    <span class="tag">GB/T 32905</span>
+                  </div>
+                  <div class="card-body">
+                    <div class="sub-section">
+                      <div class="sub-title">SM3 Hash</div>
+                      <div class="field">
+                        <span class="field-label">消息（UTF-8）</span>
+                        <textarea id="sm3-msg" disabled>abc</textarea>
+                      </div>
+                      <div class="btn-group">
+                        <button type="button" id="btn-sm3" class="btn btn-primary" disabled>计算 SM3</button>
+                      </div>
+                      <div class="out-box copy-wrap" id="sm3-out" style="margin-top:10px;padding-right:56px;">
+                        <button type="button" class="btn-copy" onclick="copyElem('sm3-out')">复制</button>
+                      </div>
+                    </div>
+                    <hr class="divider" />
+                    <div class="sub-section">
+                      <div class="sub-title">HMAC-SM3</div>
+                      <div class="grid-2">
+                        <div class="field">
+                          <span class="field-label">密钥（UTF-8）</span>
+                          <input type="text" id="sm3-hmac-key" value="secret" disabled autocomplete="off" spellcheck="false" />
+                        </div>
+                        <div class="field">
+                          <span class="field-label">消息（UTF-8）</span>
+                          <input type="text" id="sm3-hmac-msg" value="message" disabled autocomplete="off" spellcheck="false" />
+                        </div>
+                      </div>
+                      <div class="btn-group">
+                        <button type="button" id="btn-sm3-hmac" class="btn btn-primary" disabled>计算 HMAC-SM3</button>
+                      </div>
+                      <div class="out-box copy-wrap" id="sm3-hmac-out" style="margin-top:10px;padding-right:56px;">
+                        <button type="button" class="btn-copy" onclick="copyElem('sm3-hmac-out')">复制</button>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+              <p class="text-xs text-slate-500 border-t border-slate-100 pt-4">提示：本页仅供算法验证与联调；生产环境请使用合规密码模块或 HSM。</p>
+            </div>
+          </section>
+      </div>
+      <div class="flex-1 min-w-0 overflow-y-auto bg-white px-6 py-8 border-l border-slate-200/80">
+          <article id="doc" class="doc-article scroll-mt-24">
+            <h1>SM3 · gm.js</h1>
+            <p class="doc-lead">
+              示例与页底脚本一致。需 <code class="font-mono text-xs">Module</code>、<code class="font-mono text-xs">ac</code>（见页底）；<code class="font-mono text-xs">$('id')</code> 即 <code class="font-mono text-xs">document.getElementById('id')</code>。
+            </p>
+            <p class="doc-note">
+              若加载失败：请先在项目根目录生成 <code class="font-mono text-xs">gm.js</code>，并用本地 HTTP 打开页面（<code class="font-mono text-xs">file://</code> 下部分浏览器会限制 WASM）。
+            </p>
+            <section id="doc-tool">
+              <h2>在线工具：控件与接口对应</h2>
+              <ul class="space-y-2">
+                <li><strong>区块</strong>：SM3 功能在 <code class="font-mono text-xs bg-slate-100 px-1 rounded">#sec-sm3</code>（标题「SM3 杂凑」）。</li>
+                <li><strong>SM3 摘要</strong>：<code class="font-mono text-xs">btn-sm3</code> → <code class="font-mono text-xs">gm_sm3_hash</code>；消息 <code class="font-mono text-xs">sm3-msg</code>（UTF-8）；输出 <code class="font-mono text-xs">sm3-out</code>（64 hex）。</li>
+                <li><strong>HMAC-SM3</strong>：<code class="font-mono text-xs">btn-sm3-hmac</code> → <code class="font-mono text-xs">gm_sm3_hmac</code>；密钥 <code class="font-mono text-xs">sm3-hmac-key</code>、消息 <code class="font-mono text-xs">sm3-hmac-msg</code>；输出 <code class="font-mono text-xs">sm3-hmac-out</code>。</li>
+              </ul>
+            </section>
+            <div id="doc-functions" class="scroll-mt-24 space-y-8">
+              <section>
+                <h2>1. cwrap 声明</h2>
+                <p class="text-sm text-slate-600 mb-2">在 <code class="font-mono text-xs">Module</code> 就绪后声明；本页 2 个导出符号。</p>
+                <div class="doc-code-wrap">
+                  <button type="button" class="doc-copy-btn">复制</button>
+                  <pre class="language-javascript"><code class="language-javascript">// 摘要与 HMAC（与页底脚本一致）
+var sm3fn = M.cwrap('gm_sm3_hash', null, ['number', 'number', 'number']);
+var sm3hmacFn = M.cwrap('gm_sm3_hmac', null, ['number', 'number', 'number', 'number', 'number']);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h2>2. SM3 摘要 gm_sm3_hash</h2>
+                <p class="text-sm text-slate-600 mb-2">消息为 UTF-8 字节；输出 32 字节摘要，展示为 64 hex。</p>
+                <div class="doc-code-wrap">
+                  <button type="button" class="doc-copy-btn">复制</button>
+                  <pre class="language-javascript"><code class="language-javascript">// 与「计算 SM3」按钮逻辑一致
+var msg = new TextEncoder().encode($('sm3-msg').value);
+if (msg.length &gt; LARGE) throw new Error('消息过长');
+var out = M._malloc(32), inp = ac(msg);
+try {
+  sm3fn(inp.ptr, inp.len, out);
+  var digestHex = u8ToHex(new Uint8Array(M.HEAPU8.buffer, out, 32));
+} finally {
+  inp.free();
+  M._free(out);
+}</code></pre>
+                </div>
+              </section>
+              <section>
+                <h2>3. HMAC-SM3 gm_sm3_hmac</h2>
+                <p class="text-sm text-slate-600 mb-2">密钥与消息均为 UTF-8；输出 32 字节 MAC（64 hex）。</p>
+                <div class="doc-code-wrap">
+                  <button type="button" class="doc-copy-btn">复制</button>
+                  <pre class="language-javascript"><code class="language-javascript">var ku8 = new TextEncoder().encode($('sm3-hmac-key').value);
+var mu8 = new TextEncoder().encode($('sm3-hmac-msg').value);
+if (ku8.length + mu8.length &gt; LARGE) throw new Error('输入过长');
+var out = M._malloc(32), pk = ac(ku8), pm = ac(mu8);
+try {
+  sm3hmacFn(pk.ptr, pk.len, pm.ptr, pm.len, out);
+  var macHex = u8ToHex(new Uint8Array(M.HEAPU8.buffer, out, 32));
+} finally {
+  pk.free();
+  pm.free();
+  M._free(out);
+}</code></pre>
+                </div>
+              </section>
+            </div>
+          </article>
+      </div>
+    </main>
+  </div>
+  <script>
+(function () {
+  'use strict';
+
+  var GM_JS_VERSION = '3';
+  var LARGE = 512 * 1024;
+
+  function $(id) { return document.getElementById(id); }
+
+  window.showCopyToast = function (msg) {
+    var el = document.getElementById('copy-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'copy-toast';
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      document.body.appendChild(el);
+    }
+    el.textContent = msg || '已复制到剪贴板';
+    el.classList.add('show');
+    clearTimeout(window.showCopyToast._t);
+    window.showCopyToast._t = setTimeout(function () { el.classList.remove('show'); }, 2200);
+  };
+
+  function setOut(id, text, cls) {
+    var el = $(id);
+    if (!el) return;
+    el.textContent = text;
+    var base = 'out-box';
+    if (id === 'sm3-out' || id === 'sm3-hmac-out') base += ' copy-wrap';
+    el.className = base + (cls ? ' ' + cls : '');
+  }
+
+  function setErrBanner(msg) {
+    var b = $('gm-load-banner');
+    if (!b) return;
+    b.style.display = '';
+    b.className = 'err';
+    b.textContent = msg;
+  }
+
+  function setReadyBanner() {
+    var b = $('gm-load-banner');
+    if (!b) return;
+    b.style.display = 'none';
+    b.textContent = '';
+    b.className = '';
+  }
+
+  window.rndHexPub = function (nBytes) {
+    var a = new Uint8Array(nBytes);
+    crypto.getRandomValues(a);
+    return Array.from(a).map(function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+  };
+
+  window.copyField = function (id) {
+    var v = $(id).value || '';
+    if (!v || !navigator.clipboard) return;
+    navigator.clipboard.writeText(v).then(function () {
+      window.showCopyToast('已复制到剪贴板');
+    }).catch(function () {});
+  };
+
+  window.copyElem = function (id) {
+    var v = ($(id).textContent || '').trim();
+    if (!v || !navigator.clipboard) return;
+    navigator.clipboard.writeText(v).then(function () {
+      window.showCopyToast('已复制到剪贴板');
+    }).catch(function () {});
+  };
+
+  function enableSm3Ui() {
+    ['sm3-msg', 'btn-sm3', 'sm3-hmac-key', 'sm3-hmac-msg', 'btn-sm3-hmac'].forEach(function (id) {
+      var n = $(id);
+      if (n) n.disabled = false;
+    });
+  }
+
+  function loadGmJs() {
+    if (window.__gmJsPromise) return window.__gmJsPromise;
+    window.__gmJsPromise = new Promise(function (resolve, reject) {
+      if (typeof Module !== 'undefined' && Module.ccall && Module._malloc) { resolve(); return; }
+      var s = document.createElement('script');
+      s.src = '../../gm.js?v=' + encodeURIComponent(GM_JS_VERSION);
+      s.async = true;
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error('无法加载 ../../gm.js，请确认项目根目录已 build 生成 gm.js')); };
+      document.head.appendChild(s);
+    });
+    return window.__gmJsPromise;
+  }
+
+  function u8ToHex(u8) {
+    return Array.from(u8).map(function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+  }
+
+  function waitModule() {
+    return new Promise(function (resolve, reject) {
+      function ok() { return typeof Module !== 'undefined' && Module.ccall && Module._malloc; }
+      if (ok()) { resolve(Module); return; }
+      var t = setInterval(function () { if (ok()) { clearInterval(t); resolve(Module); } }, 20);
+      setTimeout(function () { clearInterval(t); if (!ok()) reject(new Error('gm.js 未加载或编译未完成')); }, 60000);
+    });
+  }
+
+  loadGmJs()
+    .then(waitModule)
+    .then(function (M) {
+      setReadyBanner();
+      enableSm3Ui();
+
+      var sm3fn = M.cwrap('gm_sm3_hash', null, ['number', 'number', 'number']);
+      var sm3hmacFn = M.cwrap('gm_sm3_hmac', null, ['number', 'number', 'number', 'number', 'number']);
+
+      function ac(u8) {
+        var p = M._malloc(u8.length || 1);
+        if (u8.length) M.HEAPU8.set(u8, p);
+        return { ptr: p, len: u8.length, free: function () { M._free(p); } };
+      }
+
+      $('btn-sm3').onclick = function () {
+        var msg = new TextEncoder().encode($('sm3-msg').value);
+        if (msg.length > LARGE) { setOut('sm3-out', '消息过长（>' + LARGE + ' 字节）', 'err'); return; }
+        var out = M._malloc(32), inp = ac(msg);
+        try { sm3fn(inp.ptr, inp.len, out); setOut('sm3-out', u8ToHex(new Uint8Array(M.HEAPU8.buffer, out, 32))); }
+        finally { inp.free(); M._free(out); }
+      };
+
+      $('btn-sm3-hmac').onclick = function () {
+        var ku8 = new TextEncoder().encode($('sm3-hmac-key').value);
+        var mu8 = new TextEncoder().encode($('sm3-hmac-msg').value);
+        if (ku8.length + mu8.length > LARGE) { setOut('sm3-hmac-out', '输入过长', 'err'); return; }
+        var out = M._malloc(32), pk = ac(ku8), pm = ac(mu8);
+        try { sm3hmacFn(pk.ptr, pk.len, pm.ptr, pm.len, out); setOut('sm3-hmac-out', u8ToHex(new Uint8Array(M.HEAPU8.buffer, out, 32))); }
+        finally { pk.free(); pm.free(); M._free(out); }
+      };
+    })
+    .catch(function (e) {
+      setErrBanner('加载失败：' + (e && e.message ? e.message : String(e)));
+    });
+})();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script>
+(function () {
+  if (typeof Prism !== 'undefined') Prism.highlightAll();
+  document.querySelectorAll('#doc .doc-copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.parentNode.querySelector('pre');
+      if (!pre || !navigator.clipboard) return;
+      navigator.clipboard.writeText(pre.textContent || '').then(function () {
+        window.showCopyToast('已复制到剪贴板');
+      }).catch(function () {});
+    });
+  });
+})();
+  </script>
+</body>
+
+</html>

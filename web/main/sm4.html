@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+
+<html class="light scroll-smooth" lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(195, 197, 217, 0.2);
+    }
+
+    /* 文档区：纯 JS 示例 */
+    .js-code {
+      font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.65;
+      tab-size: 2;
+      -moz-tab-size: 2;
+      background: #0b1020;
+      color: #cbd5e1;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      white-space: pre;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .js-code .js-cmt {
+      color: #64748b;
+    }
+
+    /* 右侧文档：占满侧栏剩余宽度 */
+    #doc {
+      width: 100%;
+      max-width: none;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    #doc .doc-panel {
+      max-width: none;
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    #doc .doc-section {
+      border-radius: 0.75rem;
+      border: 1px solid rgba(195, 197, 217, 0.55);
+      background: #fff;
+      padding: 1.25rem 1.35rem;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+
+    #doc .doc-code {
+      font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      tab-size: 2;
+      -moz-tab-size: 2;
+      background: #0f172a;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+      border-radius: 0.5rem;
+      padding: 1rem 1.125rem;
+      overflow-x: auto;
+      white-space: pre;
+      margin-top: 0.5rem;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Custom scrollbar for technical look */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #c3c5d9;
+      border-radius: 10px;
+    }
+
+    /* 复制成功提示（toast） */
+    #copy-toast {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      z-index: 99999;
+      padding: 0.55rem 1.1rem;
+      border-radius: 0.5rem;
+      background: #0f172a;
+      color: #f8fafc;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.28);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    #copy-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* gm.js 加载横幅（与 test.html 一致） */
+    #gm-load-banner {
+      font-size: 13px;
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: 1px solid #f6d399;
+      background: #fef7ed;
+      color: #92520a;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #gm-load-banner::before {
+      content: "●";
+      font-size: 10px;
+    }
+
+    #gm-load-banner.ready {
+      background: #edfaf3;
+      border-color: #9ee6c0;
+      color: #0d7a42;
+    }
+
+    #gm-load-banner.err {
+      background: #fef2f2;
+      border-color: #fca5a5;
+      color: #b91c1c;
+    }
+
+    /* SM2 演示区：DOM/类名与 test.html #sec-sm2 同源 */
+    .sm2-demo {
+      --c-bg: #f4f5f7;
+      --c-surface: #ffffff;
+      --c-border: #e2e4e9;
+      --c-border-lo: #eff0f3;
+      --c-text: #1a1d23;
+      --c-text-2: #5a6070;
+      --c-text-3: #8a92a4;
+      --c-accent: #1a56db;
+      --c-accent-hv: #1447c0;
+      --c-ok: #0d7a42;
+      --c-ok-bg: #edfaf3;
+      --c-ok-bd: #9ee6c0;
+      --c-err: #b91c1c;
+      --c-err-bg: #fef2f2;
+      --c-err-bd: #fca5a5;
+      --c-code-bg: #f0f2f5;
+      --r-card: 8px;
+      --r-input: 6px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, .08);
+      --font-mono: ui-monospace, "Cascadia Code", Consolas, "SF Mono", monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--c-text);
+    }
+
+    .sm2-demo .card {
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .sm2-demo .card-header {
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--c-border-lo);
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .sm2-demo .card-header h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--c-text);
+    }
+
+    .sm2-demo .card-header .tag {
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--c-code-bg);
+      color: var(--c-text-2);
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: .04em;
+    }
+
+    .sm2-demo .card-body {
+      padding: 16px 18px;
+    }
+
+    .sm2-demo .sub-section {
+      padding-top: 14px;
+      margin-top: 14px;
+      border-top: 1px solid var(--c-border-lo);
+    }
+
+    .sm2-demo .sub-section:first-child {
+      padding-top: 0;
+      margin-top: 0;
+      border-top: none;
+    }
+
+    .sm2-demo .sub-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--c-text);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sm2-demo .sub-title .badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--c-accent);
+      background: #eff4ff;
+      border: 1px solid #c7d7fd;
+      border-radius: 4px;
+      padding: 1px 6px;
+    }
+
+    .sm2-demo .field {
+      margin-bottom: 10px;
+    }
+
+    .sm2-demo .field-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--c-text-2);
+      margin-bottom: 4px;
+    }
+
+    .sm2-demo .field-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .sm2-demo textarea,
+    .sm2-demo input[type="text"],
+    .sm2-demo select {
+      display: block;
+      width: 100%;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--c-text);
+      background: var(--c-bg);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-input);
+      padding: 7px 10px;
+      outline: none;
+    }
+
+    .sm2-demo textarea:focus,
+    .sm2-demo input[type="text"]:focus,
+    .sm2-demo select:focus {
+      border-color: var(--c-accent);
+      box-shadow: 0 0 0 3px rgba(26, 86, 219, .12);
+      background: var(--c-surface);
+    }
+
+    .sm2-demo textarea:disabled,
+    .sm2-demo input[type="text"]:disabled,
+    .sm2-demo select:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      background: var(--c-bg);
+    }
+
+    .sm2-demo textarea {
+      min-height: 68px;
+      resize: vertical;
+    }
+
+    .sm2-demo .input-mono-ro {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      background: var(--c-code-bg);
+      border: 1px solid var(--c-border-lo);
+      border-radius: var(--r-input);
+      padding: 6px 10px;
+      color: var(--c-text);
+      width: 100%;
+      word-break: break-all;
+      min-height: 32px;
+      display: block;
+    }
+
+    .sm2-demo .field-row .input-mono-ro {
+      flex: 1;
+    }
+
+    .sm2-demo .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 7px 14px;
+      min-height: 34px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--r-input);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background .15s, border-color .15s;
+      white-space: nowrap;
+    }
+
+    .sm2-demo .btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .sm2-demo .btn-primary {
+      background: var(--c-accent);
+      color: #fff;
+      border-color: var(--c-accent);
+    }
+
+    .sm2-demo .btn-primary:not(:disabled):hover {
+      background: var(--c-accent-hv);
+      border-color: var(--c-accent-hv);
+    }
+
+    .sm2-demo .btn-default {
+      background: var(--c-surface);
+      color: var(--c-text);
+      border-color: var(--c-border);
+    }
+
+    .sm2-demo .btn-default:not(:disabled):hover {
+      background: var(--c-bg);
+      border-color: #bcc0cc;
+    }
+
+    .sm2-demo .btn-ghost {
+      background: transparent;
+      color: var(--c-text-2);
+      border-color: transparent;
+      padding: 4px 8px;
+      min-height: 28px;
+      font-size: 12px;
+    }
+
+    .sm2-demo .btn-ghost:not(:disabled):hover {
+      background: var(--c-bg);
+      color: var(--c-text);
+    }
+
+    .sm2-demo .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .sm2-demo .out-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: var(--c-code-bg);
+      border: 1px solid var(--c-border-lo);
+      border-radius: var(--r-input);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--c-text);
+      word-break: break-all;
+      white-space: pre-wrap;
+      min-height: 36px;
+      position: relative;
+    }
+
+    .sm2-demo .out-box.ok {
+      background: var(--c-ok-bg);
+      border-color: var(--c-ok-bd);
+      color: var(--c-ok);
+    }
+
+    .sm2-demo .out-box.err {
+      background: var(--c-err-bg);
+      border-color: var(--c-err-bd);
+      color: var(--c-err);
+    }
+
+    .sm2-demo .copy-wrap {
+      position: relative;
+    }
+
+    .sm2-demo .copy-wrap .btn-copy {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11px;
+      cursor: pointer;
+      color: var(--c-text-2);
+      font-weight: 500;
+      z-index: 1;
+    }
+
+    .sm2-demo .copy-wrap .btn-copy:hover {
+      background: var(--c-bg);
+    }
+
+    .sm2-demo .hint {
+      font-size: 12px;
+      color: var(--c-text-3);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .sm2-demo .divider {
+      border: none;
+      border-top: 1px solid var(--c-border-lo);
+      margin: 14px 0;
+    }
+
+    .sm2-demo .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .sm2-demo .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-variant": "#d8e3f7",
+            "on-secondary-fixed": "#181c23",
+            "on-primary-container": "#eeefff",
+            "on-primary": "#ffffff",
+            "surface-tint": "#004fe5",
+            "secondary-fixed-dim": "#c3c6d1",
+            "primary": "#0047cf",
+            "secondary-fixed": "#dfe2ed",
+            "inverse-on-surface": "#eaf1ff",
+            "surface-container-lowest": "#ffffff",
+            "outline-variant": "#c3c5d9",
+            "on-secondary-container": "#5f636c",
+            "tertiary-container": "#ae5300",
+            "tertiary-fixed": "#ffdbc8",
+            "on-surface": "#111c2a",
+            "on-secondary": "#ffffff",
+            "surface-dim": "#cfdbee",
+            "surface-container-highest": "#d8e3f7",
+            "primary-container": "#165dff",
+            "error-container": "#ffdad6",
+            "on-error": "#ffffff",
+            "on-tertiary-fixed-variant": "#733500",
+            "on-error-container": "#93000a",
+            "inverse-primary": "#b6c4ff",
+            "surface-bright": "#f8f9ff",
+            "inverse-surface": "#263140",
+            "surface-container-high": "#dee9fc",
+            "tertiary": "#894000",
+            "error": "#ba1a1a",
+            "on-background": "#111c2a",
+            "on-primary-fixed-variant": "#003bb0",
+            "on-primary-fixed": "#00164f",
+            "secondary": "#5b5e68",
+            "on-surface-variant": "#434656",
+            "surface-container-low": "#eff4ff",
+            "surface-container": "#e5eeff",
+            "secondary-container": "#dcdfea",
+            "outline": "#737688",
+            "on-tertiary-fixed": "#311300",
+            "on-tertiary": "#ffffff",
+            "background": "#f8f9ff",
+            "tertiary-fixed-dim": "#ffb689",
+            "primary-fixed": "#dce1ff",
+            "surface": "#f8f9ff",
+            "on-secondary-fixed-variant": "#434750",
+            "primary-fixed-dim": "#b6c4ff",
+            "on-tertiary-container": "#ffece2"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-surface text-on-surface antialiased">
+  <header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur border-b border-slate-200/60">
+    <div class="flex items-center justify-between h-14 px-6 max-w-[100vw]">
+      <a href="../index.html" class="text-lg font-bold text-slate-900 hover:text-primary transition-colors">SECMI</a>
+      <nav class="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-slate-600">
+        <a class="hover:text-slate-900" href="../index.html">首页</a>
+        <a class="text-primary font-semibold" href="#tool">在线工具</a>
+        <a class="hover:text-slate-900" href="#doc-functions">函数与方法</a>
+      </nav>
+    </div>
+  </header>
+  <div class="flex pt-14 h-screen overflow-hidden">
+    <aside class="h-screen w-64 fixed left-0 top-14 bg-slate-50 flex flex-col p-4 border-r border-slate-200/60 text-sm font-medium">
+      <div class="px-1 pb-3 mb-2 border-b border-slate-200/50">
+        <p class="text-sm font-bold text-slate-900 tracking-tight">SECMI</p>
+        <p class="text-[10px] text-slate-500 mt-1">gm.js 本地计算</p>
+      </div>
+      <nav class="flex-1 space-y-1 overflow-y-auto" aria-label="算法与本页目录">
+        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100" href="sm2.html">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">deployed_code</span>
+          <span>SM2</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100" href="sm3.html">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">fingerprint</span>
+          <span>SM3</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-white text-primary shadow-sm border border-slate-200/80" href="sm4.html" aria-current="page">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">lock</span>
+          <span>SM4</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100" href="sm4-file.html">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">folder_open</span>
+          <span>SM4 大文件</span>
+        </a>
+        <div class="pt-3 mt-2 border-t border-slate-200/60">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 mb-1">本页（SM4）</p>
+        </div>
+        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100" href="#tool">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">touch_app</span>
+          <span>在线工具</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100" href="#doc-functions">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">functions</span>
+          <span>函数与方法</span>
+        </a>
+      </nav>
+    </aside>
+    <!-- Main Content Area -->
+    <main class="ml-64 flex flex-1 min-h-0 w-0">
+      <div class="flex-shrink-0 w-full max-w-[min(100%,520px)] overflow-y-auto bg-surface-bright px-4 py-6 border-r border-slate-200/70">
+          <section id="tool" class="scroll-mt-24">
+            <h2 class="text-lg font-bold text-on-surface mb-2">SM2 在线工具</h2>
+            <p class="text-xs text-on-surface-variant leading-relaxed mb-4">
+              本地 gm.js，密钥与数据不上传。请先构建根目录 <code class="font-mono text-[11px] bg-slate-100 px-1 rounded">gm.js</code>。
+            </p>
+            <div class="rounded-2xl border border-outline-variant/40 bg-white p-6 shadow-sm space-y-4">
+              <div id="gm-load-banner" role="status" aria-live="polite">正在加载 gm.js（SECMI）…</div>
+              <div class="text-sm text-on-surface-variant bg-surface-container-low/80 rounded-lg px-4 py-3 border border-outline-variant/30">
+                <strong>本地处理：</strong>密钥、明文与计算结果仅在当前浏览器内存中使用，不会上传。请先执行 <code class="text-xs font-mono bg-white px-1 rounded">build.bat</code> / <code class="text-xs font-mono">build.sh</code> 生成根目录 <code class="text-xs font-mono">gm.js</code>。
+              </div>
+              <div class="sm2-demo">
+                <section class="card" id="sec-sm2" aria-labelledby="sm2-title">
+                  <div class="card-header">
+                    <h2 id="sm2-title">SM2 椭圆曲线</h2>
+                    <span class="tag">GB/T 32918</span>
+                  </div>
+                  <div class="card-body">
+                    <div class="sub-section">
+                      <div class="sub-title">密钥对 <span class="badge">Step 1</span></div>
+                      <div class="hint" style="margin-bottom:10px;">生成后，私钥与公钥将自动填入下方所有子功能区。</div>
+                      <div class="btn-group">
+                        <button type="button" id="btn-sm2-key" class="btn btn-primary" disabled>生成密钥对（浏览器随机数）</button>
+                      </div>
+                      <div class="grid-2" style="margin-top:12px;">
+                        <div class="field">
+                          <span class="field-label">私钥 hex（64）</span>
+                          <div class="field-row">
+                            <input type="text" id="sm2-priv" class="input-mono-ro" readonly autocomplete="off" spellcheck="false" placeholder="—" />
+                            <button type="button" class="btn btn-ghost" onclick="copyField('sm2-priv')">复制</button>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <span class="field-label">公钥 hex（128）</span>
+                          <div class="field-row">
+                            <input type="text" id="sm2-pub" class="input-mono-ro" readonly autocomplete="off" spellcheck="false" placeholder="—" />
+                            <button type="button" class="btn btn-ghost" onclick="copyField('sm2-pub')">复制</button>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="hint">也可手动填入已有私钥 hex，后续所有区块均从上方字段读取；或在各子区单独粘贴。</p>
+                    </div>
+                    <hr class="divider" />
+                    <div class="sub-section">
+                      <div class="sub-title">签名 / 验签 <span class="badge">Step 2</span></div>
+                      <div class="field">
+                        <span class="field-label">用户 ID（留空使用默认 1234567812345678）</span>
+                        <input type="text" id="sm2-id" placeholder="留空则默认" disabled autocomplete="off" />
+                      </div>
+                      <div class="field">
+                        <span class="field-label">待签名消息</span>
+                        <textarea id="sm2-msg" disabled>message to sign</textarea>
+                      </div>
+                      <div class="field">
+                        <span class="field-label">随机 k hex（64，留空自动随机）</span>
+                        <div class="field-row">
+                          <input type="text" id="sm2-k" autocomplete="off" spellcheck="false" disabled placeholder="留空则每次点击自动生成随机 k" />
+                          <button type="button" class="btn btn-ghost" onclick="document.getElementById('sm2-k').value=rndHexPub(32)">随机</button>
+                        </div>
+                      </div>
+                      <div class="btn-group">
+                        <button type="button" id="btn-sm2-sign" class="btn btn-primary" disabled>签名</button>
+                        <button type="button" id="btn-sm2-verify" class="btn btn-default" disabled>验签</button>
+                      </div>
+                      <div class="grid-2" style="margin-top:12px;">
+                        <div class="field">
+                          <span class="field-label">r hex（64）</span>
+                          <div class="field-row">
+                            <input type="text" id="sm2-r" class="input-mono-ro" readonly autocomplete="off" spellcheck="false" placeholder="—" />
+                            <button type="button" class="btn btn-ghost" onclick="copyField('sm2-r')">复制</button>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <span class="field-label">s hex（64）</span>
+                          <div class="field-row">
+                            <input type="text" id="sm2-s" class="input-mono-ro" readonly autocomplete="off" spellcheck="false" placeholder="—" />
+                            <button type="button" class="btn btn-ghost" onclick="copyField('sm2-s')">复制</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="out-box" id="sm2-out"></div>
+                    </div>
+                    <hr class="divider" />
+                    <div class="sub-section">
+                      <div class="sub-title">公钥加密 / 解密 <span class="badge">GB/T 32918.4</span></div>
+                      <p class="hint" style="margin-bottom:10px;">密文格式：C1(64 B 点坐标) + C2(明文长度) + C3(32 B SM3 校验)。点击「填入上方密钥」可快速同步。</p>
+                      <div class="field">
+                        <span class="field-label">分量顺序</span>
+                        <select id="sm2-cipher-order" disabled>
+                          <option value="0" selected>C1 ‖ C2 ‖ C3（新版）</option>
+                          <option value="1">C1 ‖ C3 ‖ C2（旧版）</option>
+                        </select>
+                      </div>
+                      <div class="grid-2">
+                        <div class="field">
+                          <span class="field-label">加密用公钥 hex（128）</span>
+                          <div class="field-row">
+                            <input type="text" id="sm2-enc-pub" disabled autocomplete="off" spellcheck="false" placeholder="128 字符 hex" />
+                            <button type="button" class="btn btn-ghost" id="btn-fill-enc-pub" disabled>↑填入</button>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <span class="field-label">解密用私钥 hex（64）</span>
+                          <div class="field-row">
+                            <input type="text" id="sm2-dec-priv" disabled autocomplete="off" spellcheck="false" placeholder="64 字符 hex" />
+                            <button type="button" class="btn btn-ghost" id="btn-fill-dec-priv" disabled>↑填入</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="field">
+                        <span class="field-label">明文（UTF-8）</span>
+                        <textarea id="sm2-plain" disabled>hello sm2</textarea>
+                      </div>
+                      <div class="field">
+                        <span class="field-label">加密随机 k（留空自动随机）</span>
+                        <input type="text" id="sm2-enc-k" disabled autocomplete="off" spellcheck="false" placeholder="64 字符 hex，留空自动随机" />
+                      </div>
+                      <div class="btn-group">
+                        <button type="button" id="btn-sm2-enc" class="btn btn-primary" disabled>加密</button>
+                        <button type="button" id="btn-sm2-dec" class="btn btn-default" disabled>解密</button>
+                      </div>
+                      <div class="field" style="margin-top:12px;">
+                        <span class="field-label">密文 hex</span>
+                        <div class="copy-wrap">
+                          <textarea id="sm2-cipher-hex" disabled placeholder="加密后自动生成，或粘贴已有密文 hex"></textarea>
+                          <button type="button" class="btn-copy" onclick="copyField('sm2-cipher-hex')">复制</button>
+                        </div>
+                      </div>
+                      <div class="out-box" id="sm2-cipher-out"></div>
+                    </div>
+                    <hr class="divider" />
+                    <div class="sub-section">
+                      <div class="sub-title">ECDH 共享密钥 <span class="badge">KDF-SM3</span></div>
+                      <p class="hint" style="margin-bottom:10px;">共享点 d·P_peer，对 (x‖y) 做 GB/T KDF 得到 32 字节密钥材料。</p>
+                      <div class="grid-2">
+                        <div class="field">
+                          <span class="field-label">本方私钥 hex（64）</span>
+                          <div class="field-row">
+                            <input type="text" id="sm2-ecdh-priv" disabled autocomplete="off" spellcheck="false" placeholder="64 字符 hex" />
+                            <button type="button" class="btn btn-ghost" id="btn-fill-ecdh-priv" disabled>↑填入</button>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <span class="field-label">对方公钥 hex（128）</span>
+                          <div class="field-row">
+                            <input type="text" id="sm2-ecdh-peer" disabled autocomplete="off" spellcheck="false" placeholder="128 字符 hex" />
+                            <button type="button" class="btn btn-ghost" id="btn-fill-ecdh-peer" disabled>↑填入</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="btn-group">
+                        <button type="button" id="btn-sm2-ecdh" class="btn btn-primary" disabled>计算共享密钥</button>
+                      </div>
+                      <div class="out-box copy-wrap" id="sm2-ecdh-out" style="margin-top:10px;padding-right:56px;">
+                        <button type="button" class="btn-copy" onclick="copyElem('sm2-ecdh-out')">复制</button>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+              <p class="text-xs text-slate-500 border-t border-slate-100 pt-4">提示：私钥与签名仅用于本地体验；生产环境请使用合规密钥设备或 KMS，勿在网页中粘贴真实生产私钥。</p>
+            </div>
+          </section>
+      </div>
+      <div class="flex-1 min-w-0 overflow-y-auto bg-slate-50/90 px-5 py-6">
+          <div id="doc" class="scroll-mt-24">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight mb-4 max-w-2xl mx-auto">SM2 · gm.js</h1>
+            <p class="text-sm text-on-surface-variant mb-4 max-w-2xl mx-auto">
+              下列示例与页面脚本一致；需 <code class="font-mono text-xs">Module</code>、<code class="font-mono text-xs">ac</code>、<code class="font-mono text-xs">hexToU8</code> 等（见页底）。<code class="font-mono text-xs">$('id')</code> 即 <code class="font-mono text-xs">document.getElementById('id')</code>。
+            </p>
+            <p class="text-sm text-slate-700 bg-slate-50 border border-slate-200/90 rounded-xl px-4 py-3 mb-8 max-w-2xl mx-auto">
+              若页面提示加载失败，请确认项目根目录已生成 <code class="font-mono text-xs">gm.js</code>，并尽量通过本地 HTTP 访问（部分浏览器在 <code class="font-mono text-xs">file://</code> 下会限制 WASM）。
+            </p>
+            <div class="doc-panel space-y-8">
+            <section id="doc-tool" class="doc-section scroll-mt-24">
+              <h2 class="text-base font-bold text-slate-800 mb-3">在线工具：控件与接口对应</h2>
+              <ul class="text-sm text-on-surface-variant space-y-2 list-disc pl-5">
+                <li><strong>区块</strong>：SM2 功能集中在 <code class="font-mono text-xs bg-slate-100 px-1 rounded">#sec-sm2</code>（标题「SM2 椭圆曲线」）。</li>
+                <li><strong>模块就绪</strong>：先加载 <code class="font-mono text-xs">gm.js</code>，在 <code class="font-mono text-xs">Module</code> 可用后声明 <code class="font-mono text-xs">cwrap</code>。</li>
+                <li><strong>密钥</strong>：<code class="font-mono text-xs">btn-sm2-key</code> → <code class="font-mono text-xs">gm_sm2_generate_keypair</code>；输出写入 <code class="font-mono text-xs">sm2-priv</code>（64 hex）、<code class="font-mono text-xs">sm2-pub</code>（128 hex）。</li>
+                <li><strong>签名 / 验签</strong>：<code class="font-mono text-xs">btn-sm2-sign</code> / <code class="font-mono text-xs">btn-sm2-verify</code>；随机数 <code class="font-mono text-xs">sm2-k</code>；用户标识 <code class="font-mono text-xs">sm2-id</code>；结果 <code class="font-mono text-xs">sm2-r</code>、<code class="font-mono text-xs">sm2-s</code>。</li>
+                <li><strong>加解密</strong>：<code class="font-mono text-xs">btn-sm2-enc</code> / <code class="font-mono text-xs">btn-sm2-dec</code>；<code class="font-mono text-xs">sm2-cipher-order</code> 与库内 <code class="font-mono text-xs">order</code> 加解密须一致；密文 <code class="font-mono text-xs">sm2-cipher-hex</code>。</li>
+                <li><strong>ECDH</strong>：<code class="font-mono text-xs">btn-sm2-ecdh</code> → <code class="font-mono text-xs">gm_sm2_ecdh_shared_key</code>，输出 <code class="font-mono text-xs">sm2-ecdh-out</code>。</li>
+              </ul>
+            </section>
+            <div id="doc-functions" class="scroll-mt-24 space-y-8">
+              <section class="doc-section border-l-4 border-primary pl-4">
+                <h2 class="text-xl font-bold text-on-surface mb-2">1. cwrap 声明</h2>
+                <p class="text-sm text-on-surface-variant mb-3">在 <code class="font-mono text-xs">Module</code> 就绪后声明；下列为 SM2 相关 7 个导出符号。</p>
+                <div class="doc-code">var sm2gen    = M.cwrap('gm_sm2_generate_keypair','number', ['number','number','number']);
+var sm2signFn = M.cwrap('gm_sm2_sign',            'number', ['number','number','number','number','number','number','number','number','number']);
+var sm2verFn  = M.cwrap('gm_sm2_verify',          'number', ['number','number','number','number','number','number','number','number']);
+var sm2encFn  = M.cwrap('gm_sm2_encrypt',         'number', ['number','number','number','number','number','number','number']);
+var sm2decFn  = M.cwrap('gm_sm2_decrypt',         'number', ['number','number','number','number','number','number']);
+var sm2ecdhFn = M.cwrap('gm_sm2_ecdh_shared_key', 'number', ['number','number','number']);</div>
+              </section>
+              <section class="doc-section border-l-4 border-emerald-500 pl-4">
+                <h2 class="text-xl font-bold text-on-surface mb-2">2. 生成密钥 gm_sm2_generate_keypair</h2>
+                <p class="text-sm text-on-surface-variant mb-2">与「生成密钥对」按钮相同：<code class="font-mono text-xs">sm2gen</code> 返回非 0 表示成功；私钥 32 字节 → 64 hex，公钥 64 字节（X‖Y）→ 128 hex。</p>
+                <div class="doc-code">var priv = M._malloc(32), pub = M._malloc(64);
+var pe = ac(hexToU8(rndHex(32))); // 32 字节随机熵
+try {
+  if (!sm2gen(pe.ptr, priv, pub)) throw new Error('生成失败');
+  var privHex = u8ToHex(new Uint8Array(M.HEAPU8.buffer, priv, 32));
+  var pubHex  = u8ToHex(new Uint8Array(M.HEAPU8.buffer, pub, 64));
+} finally {
+  pe.free(); M._free(priv); M._free(pub);
+}</div>
+              </section>
+              <section class="doc-section border-l-4 border-violet-500 pl-4">
+                <h2 class="text-xl font-bold text-on-surface mb-2">3. 加密 gm_sm2_encrypt</h2>
+                <p class="text-sm text-on-surface-variant mb-2">公钥 128 hex、明文 UTF-8、随机 k 64 hex（可空则自己 <code class="font-mono text-xs">rndHex(32)</code>）；<code class="font-mono text-xs">order</code> 与下拉框一致，<code class="font-mono text-xs">n</code> 为密文字节数。</p>
+                <div class="doc-code">var pubHex = $('sm2-enc-pub').value.replace(/\s/g, '');
+var msg = new TextEncoder().encode($('sm2-plain').value);
+var kHex = $('sm2-enc-k').value.replace(/\s/g, '');
+if (kHex.length !== 64) { kHex = rndHex(32); $('sm2-enc-k').value = kHex; }
+var order = parseInt($('sm2-cipher-order').value, 10) || 0;
+var cap = 96 + msg.length;
+var out = M._malloc(cap);
+var ppub = ac(hexToU8(pubHex)), pm = ac(msg), prk = ac(hexToU8(kHex));
+try {
+  var n = sm2encFn(ppub.ptr, pm.ptr, pm.len, prk.ptr, out, cap, order);
+  if (!n) throw new Error('加密失败');
+  var cipherHex = u8ToHex(new Uint8Array(M.HEAPU8.buffer, out, n));
+} finally {
+  ppub.free(); pm.free(); prk.free(); M._free(out);
+}</div>
+              </section>
+              <section class="doc-section border-l-4 border-teal-500 pl-4">
+                <h2 class="text-xl font-bold text-on-surface mb-2">4. 解密 gm_sm2_decrypt</h2>
+                <p class="text-sm text-on-surface-variant mb-2">密文总长至少 96 字节；<code class="font-mono text-xs">order</code> 必须与加密时相同。</p>
+                <div class="doc-code">var privHex = $('sm2-dec-priv').value.replace(/\s/g, '');
+var hex = $('sm2-cipher-hex').value.replace(/\s/g, '');
+var cipher = hexToU8(hex);
+if (cipher.length &lt; 96) throw new Error('密文太短');
+var mlen = cipher.length - 96;
+var order = parseInt($('sm2-cipher-order').value, 10) || 0;
+var out = M._malloc(Math.max(mlen, 1));
+var ppriv = ac(hexToU8(privHex)), pc = ac(cipher);
+try {
+  var n = sm2decFn(ppriv.ptr, pc.ptr, pc.len, out, mlen, order);
+  if (!n) throw new Error('解密失败');
+  var plain = new TextDecoder().decode(new Uint8Array(M.HEAPU8.buffer, out, n));
+} finally {
+  ppriv.free(); pc.free(); M._free(out);
+}</div>
+              </section>
+              <section class="doc-section border-l-4 border-amber-500 pl-4">
+                <h2 class="text-xl font-bold text-on-surface mb-2">5. 签名 gm_sm2_sign</h2>
+                <p class="text-sm text-on-surface-variant mb-2">需要完整私钥/公钥 hex 与随机 k；若填写了用户 ID，需把字符串拷进堆并传 <code class="font-mono text-xs">idPtr</code> / <code class="font-mono text-xs">idLen</code>。</p>
+                <div class="doc-code">var privHex = $('sm2-priv').value.replace(/\s/g, '');
+var pubHex  = $('sm2-pub').value.replace(/\s/g, '');
+var kHex    = $('sm2-k').value.replace(/\s/g, '');
+if (kHex.length !== 64) { kHex = rndHex(32); $('sm2-k').value = kHex; }
+var msg = new TextEncoder().encode($('sm2-msg').value);
+var idStr = $('sm2-id').value, idPtr = 0, idLen = 0;
+if (idStr) {
+  var idU8 = new TextEncoder().encode(idStr);
+  idPtr = M._malloc(idU8.length); M.HEAPU8.set(idU8, idPtr); idLen = idU8.length;
+}
+var pp = ac(hexToU8(privHex)), ppub = ac(hexToU8(pubHex)), pm = ac(msg), pk = ac(hexToU8(kHex));
+var pr = M._malloc(32), ps = M._malloc(32);
+try {
+  if (!sm2signFn(pp.ptr, pm.ptr, pm.len, ppub.ptr, idPtr, idLen, pk.ptr, pr, ps))
+    throw new Error('签名失败');
+  var rHex = u8ToHex(new Uint8Array(M.HEAPU8.buffer, pr, 32));
+  var sHex = u8ToHex(new Uint8Array(M.HEAPU8.buffer, ps, 32));
+} finally {
+  pp.free(); ppub.free(); pm.free(); pk.free(); M._free(pr); M._free(ps);
+  if (idPtr) M._free(idPtr);
+}</div>
+              </section>
+              <section class="doc-section border-l-4 border-rose-400 pl-4">
+                <h2 class="text-xl font-bold text-on-surface mb-2">6. 验签 gm_sm2_verify</h2>
+                <p class="text-sm text-on-surface-variant mb-2">返回值为真/假；用户 ID 处理与签名相同。</p>
+                <div class="doc-code">var pubHex = $('sm2-pub').value.replace(/\s/g, '');
+var rHex   = $('sm2-r').value.replace(/\s/g, '');
+var sHex   = $('sm2-s').value.replace(/\s/g, '');
+var msg = new TextEncoder().encode($('sm2-msg').value);
+var idStr = $('sm2-id').value, idPtr = 0, idLen = 0;
+if (idStr) {
+  var idU8 = new TextEncoder().encode(idStr);
+  idPtr = M._malloc(idU8.length); M.HEAPU8.set(idU8, idPtr); idLen = idU8.length;
+}
+var ppub = ac(hexToU8(pubHex)), pm = ac(msg), pr2 = ac(hexToU8(rHex)), ps2 = ac(hexToU8(sHex));
+try {
+  var ok = sm2verFn(ppub.ptr, pm.ptr, pm.len, idPtr, idLen, pr2.ptr, ps2.ptr);
+} finally {
+  ppub.free(); pm.free(); pr2.free(); ps2.free();
+  if (idPtr) M._free(idPtr);
+}</div>
+              </section>
+              <section class="doc-section border-l-4 border-indigo-500 pl-4">
+                <h2 class="text-xl font-bold text-on-surface mb-2">7. ECDH gm_sm2_ecdh_shared_key</h2>
+                <p class="text-sm text-on-surface-variant mb-2">本方私钥 64 hex、对方公钥 128 hex；输出 32 字节共享密钥 material（hex）。</p>
+                <div class="doc-code">var privHex = $('sm2-ecdh-priv').value.replace(/\s/g, '');
+var peerHex = $('sm2-ecdh-peer').value.replace(/\s/g, '');
+var out = M._malloc(32);
+var ppriv = ac(hexToU8(privHex)), ppeer = ac(hexToU8(peerHex));
+try {
+  if (!sm2ecdhFn(ppriv.ptr, ppeer.ptr, out)) throw new Error('ECDH 失败');
+  var keyHex = u8ToHex(new Uint8Array(M.HEAPU8.buffer, out, 32));
+} finally {
+  ppriv.free(); ppeer.free(); M._free(out);
+}</div>
+              </section>
+            </div>
+            </div>
+          </div>
+      </div>
+    </main>
+  </div>
+  <script>
+(function () {
+  'use strict';
+
+  var GM_JS_VERSION = '3';
+  var LARGE = 512 * 1024;
+
+  function $(id) { return document.getElementById(id); }
+
+  window.showCopyToast = function (msg) {
+    var el = document.getElementById('copy-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'copy-toast';
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      document.body.appendChild(el);
+    }
+    el.textContent = msg || '已复制到剪贴板';
+    el.classList.add('show');
+    clearTimeout(window.showCopyToast._t);
+    window.showCopyToast._t = setTimeout(function () { el.classList.remove('show'); }, 2200);
+  };
+
+  function setOut(id, text, cls) {
+    var el = $(id);
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'out-box' + (cls ? ' ' + cls : '');
+  }
+
+  function setErrBanner(msg) {
+    var b = $('gm-load-banner');
+    if (!b) return;
+    b.style.display = '';
+    b.className = 'err';
+    b.textContent = msg;
+  }
+
+  function setReadyBanner() {
+    var b = $('gm-load-banner');
+    if (!b) return;
+    b.style.display = 'none';
+    b.textContent = '';
+    b.className = '';
+  }
+
+  window.rndHexPub = function (nBytes) {
+    var a = new Uint8Array(nBytes);
+    crypto.getRandomValues(a);
+    return Array.from(a).map(function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+  };
+
+  window.copyField = function (id) {
+    var v = $(id).value || '';
+    if (!v || !navigator.clipboard) return;
+    navigator.clipboard.writeText(v).then(function () {
+      window.showCopyToast('已复制到剪贴板');
+    }).catch(function () {});
+  };
+
+  window.copyElem = function (id) {
+    var v = ($(id).textContent || '').trim();
+    if (!v || !navigator.clipboard) return;
+    navigator.clipboard.writeText(v).then(function () {
+      window.showCopyToast('已复制到剪贴板');
+    }).catch(function () {});
+  };
+
+  function enableSm2Ui() {
+    var ids = [
+      'sm2-id', 'sm2-msg', 'sm2-k', 'btn-sm2-key', 'btn-sm2-sign', 'btn-sm2-verify',
+      'sm2-cipher-order', 'sm2-enc-pub', 'sm2-plain', 'sm2-enc-k', 'btn-sm2-enc', 'sm2-cipher-hex', 'sm2-dec-priv', 'btn-sm2-dec',
+      'btn-fill-enc-pub', 'btn-fill-dec-priv',
+      'sm2-ecdh-priv', 'sm2-ecdh-peer', 'btn-sm2-ecdh', 'btn-fill-ecdh-priv', 'btn-fill-ecdh-peer'
+    ];
+    ids.forEach(function (id) {
+      var n = $(id);
+      if (n) n.disabled = false;
+    });
+  }
+
+  function loadGmJs() {
+    if (window.__gmJsPromise) return window.__gmJsPromise;
+    window.__gmJsPromise = new Promise(function (resolve, reject) {
+      if (typeof Module !== 'undefined' && Module.ccall && Module._malloc) { resolve(); return; }
+      var s = document.createElement('script');
+      s.src = '../../gm.js?v=' + encodeURIComponent(GM_JS_VERSION);
+      s.async = true;
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error('无法加载 ../../gm.js，请确认项目根目录已 build 生成 gm.js')); };
+      document.head.appendChild(s);
+    });
+    return window.__gmJsPromise;
+  }
+
+  function hexToU8(hex) {
+    hex = hex.replace(/\s+/g, '').toLowerCase();
+    if (hex.length % 2) throw new Error('十六进制长度须为偶数');
+    if (!/^[0-9a-f]*$/.test(hex)) throw new Error('含非法十六进制字符');
+    var out = new Uint8Array(hex.length / 2);
+    for (var i = 0; i < out.length; i++) out[i] = parseInt(hex.substr(i * 2, 2), 16);
+    return out;
+  }
+
+  function u8ToHex(u8) {
+    return Array.from(u8).map(function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+  }
+
+  function rndHex(n) { return window.rndHexPub(n); }
+
+  function waitModule() {
+    return new Promise(function (resolve, reject) {
+      function ok() { return typeof Module !== 'undefined' && Module.ccall && Module._malloc; }
+      if (ok()) { resolve(Module); return; }
+      var t = setInterval(function () { if (ok()) { clearInterval(t); resolve(Module); } }, 20);
+      setTimeout(function () { clearInterval(t); if (!ok()) reject(new Error('gm.js 未加载或编译未完成')); }, 60000);
+    });
+  }
+
+  loadGmJs()
+    .then(waitModule)
+    .then(function (M) {
+      setReadyBanner();
+      enableSm2Ui();
+
+      var sm2gen = M.cwrap('gm_sm2_generate_keypair', 'number', ['number', 'number', 'number']);
+      var sm2signFn = M.cwrap('gm_sm2_sign', 'number', ['number', 'number', 'number', 'number', 'number', 'number', 'number', 'number', 'number']);
+      var sm2verFn = M.cwrap('gm_sm2_verify', 'number', ['number', 'number', 'number', 'number', 'number', 'number', 'number', 'number']);
+      var sm2encFn = M.cwrap('gm_sm2_encrypt', 'number', ['number', 'number', 'number', 'number', 'number', 'number', 'number']);
+      var sm2decFn = M.cwrap('gm_sm2_decrypt', 'number', ['number', 'number', 'number', 'number', 'number', 'number']);
+      var sm2ecdhFn = M.cwrap('gm_sm2_ecdh_shared_key', 'number', ['number', 'number', 'number']);
+
+      function ac(u8) {
+        var p = M._malloc(u8.length || 1);
+        if (u8.length) M.HEAPU8.set(u8, p);
+        return { ptr: p, len: u8.length, free: function () { M._free(p); } };
+      }
+
+      $('btn-sm2-key').onclick = function () {
+        var priv = M._malloc(32), pub = M._malloc(64);
+        var pe = ac(hexToU8(rndHex(32)));
+        try {
+          if (!sm2gen(pe.ptr, priv, pub)) { setOut('sm2-out', '错误：生成失败，请重试', 'err'); return; }
+          var privHex = u8ToHex(new Uint8Array(M.HEAPU8.buffer, priv, 32));
+          var pubHex = u8ToHex(new Uint8Array(M.HEAPU8.buffer, pub, 64));
+          $('sm2-priv').value = privHex;
+          $('sm2-pub').value = pubHex;
+          $('sm2-k').value = rndHex(32);
+          setOut('sm2-out', '密钥对已生成并已同步到下方各功能区。', 'ok');
+        } finally { pe.free(); M._free(priv); M._free(pub); }
+      };
+
+      $('btn-fill-enc-pub').onclick = function () { $('sm2-enc-pub').value = $('sm2-pub').value; };
+      $('btn-fill-dec-priv').onclick = function () { $('sm2-dec-priv').value = $('sm2-priv').value; };
+      $('btn-fill-ecdh-priv').onclick = function () { $('sm2-ecdh-priv').value = $('sm2-priv').value; };
+      $('btn-fill-ecdh-peer').onclick = function () { $('sm2-ecdh-peer').value = $('sm2-pub').value; };
+
+      $('btn-sm2-sign').onclick = function () {
+        try {
+          var privHex = $('sm2-priv').value.replace(/\s/g, '');
+          var pubHex = $('sm2-pub').value.replace(/\s/g, '');
+          var kHex = $('sm2-k').value.replace(/\s/g, '');
+          if (privHex.length !== 64 || pubHex.length !== 128) {
+            setOut('sm2-out', '错误：请先生成密钥对（私钥 64 hex，公钥 128 hex）', 'err'); return;
+          }
+          if (kHex.length !== 64) { kHex = rndHex(32); $('sm2-k').value = kHex; }
+          var msg = new TextEncoder().encode($('sm2-msg').value);
+          var idStr = $('sm2-id').value, idPtr = 0, idLen = 0;
+          if (idStr) { var idU8 = new TextEncoder().encode(idStr); idPtr = M._malloc(idU8.length); M.HEAPU8.set(idU8, idPtr); idLen = idU8.length; }
+          var pp = ac(hexToU8(privHex)), ppub = ac(hexToU8(pubHex)), pm = ac(msg), pk = ac(hexToU8(kHex));
+          var pr = M._malloc(32), ps = M._malloc(32);
+          try {
+            if (!sm2signFn(pp.ptr, pm.ptr, pm.len, ppub.ptr, idPtr, idLen, pk.ptr, pr, ps)) {
+              setOut('sm2-out', '错误：签名失败', 'err'); return;
+            }
+            $('sm2-r').value = u8ToHex(new Uint8Array(M.HEAPU8.buffer, pr, 32));
+            $('sm2-s').value = u8ToHex(new Uint8Array(M.HEAPU8.buffer, ps, 32));
+            setOut('sm2-out', '签名成功。', 'ok');
+          } finally { pp.free(); ppub.free(); pm.free(); pk.free(); M._free(pr); M._free(ps); if (idPtr) M._free(idPtr); }
+        } catch (e) { setOut('sm2-out', '错误：' + e.message, 'err'); }
+      };
+
+      $('btn-sm2-verify').onclick = function () {
+        try {
+          var pubHex = $('sm2-pub').value.replace(/\s/g, '');
+          var rHex = $('sm2-r').value.replace(/\s/g, '');
+          var sHex = $('sm2-s').value.replace(/\s/g, '');
+          if (pubHex.length !== 128 || rHex.length !== 64 || sHex.length !== 64) {
+            setOut('sm2-out', '错误：公钥 128 hex、r/s 各 64 hex', 'err'); return;
+          }
+          var msg = new TextEncoder().encode($('sm2-msg').value);
+          var idStr = $('sm2-id').value, idPtr = 0, idLen = 0;
+          if (idStr) { var idU8 = new TextEncoder().encode(idStr); idPtr = M._malloc(idU8.length); M.HEAPU8.set(idU8, idPtr); idLen = idU8.length; }
+          var ppub = ac(hexToU8(pubHex)), pm = ac(msg), pr2 = ac(hexToU8(rHex)), ps2 = ac(hexToU8(sHex));
+          try {
+            var v = sm2verFn(ppub.ptr, pm.ptr, pm.len, idPtr, idLen, pr2.ptr, ps2.ptr);
+            setOut('sm2-out', v ? '✓ 验签通过' : '✗ 验签失败', v ? 'ok' : 'err');
+          } finally { ppub.free(); pm.free(); pr2.free(); ps2.free(); if (idPtr) M._free(idPtr); }
+        } catch (e) { setOut('sm2-out', '错误：' + e.message, 'err'); }
+      };
+
+      $('btn-sm2-enc').onclick = function () {
+        try {
+          var pubHex = $('sm2-enc-pub').value.replace(/\s/g, '');
+          if (pubHex.length !== 128) { setOut('sm2-cipher-out', '错误：公钥须为 128 字符 hex', 'err'); return; }
+          var msg = new TextEncoder().encode($('sm2-plain').value);
+          if (msg.length > LARGE) { setOut('sm2-cipher-out', '明文过长', 'err'); return; }
+          var kHex = $('sm2-enc-k').value.replace(/\s/g, '');
+          if (kHex.length !== 64) { kHex = rndHex(32); $('sm2-enc-k').value = kHex; }
+          var order = parseInt($('sm2-cipher-order').value, 10) || 0;
+          var cap = 96 + msg.length, out = M._malloc(cap);
+          var ppub = ac(hexToU8(pubHex)), pm = ac(msg), prk = ac(hexToU8(kHex));
+          try {
+            var n = sm2encFn(ppub.ptr, pm.ptr, pm.len, prk.ptr, out, cap, order);
+            if (!n) { setOut('sm2-cipher-out', '错误：加密失败（检查 k 与公钥）', 'err'); return; }
+            var hx = u8ToHex(new Uint8Array(M.HEAPU8.buffer, out, n));
+            $('sm2-cipher-hex').value = hx;
+            setOut('sm2-cipher-out', '加密成功，密文长度 ' + n + ' 字节。', 'ok');
+          } finally { ppub.free(); pm.free(); prk.free(); M._free(out); }
+        } catch (e) { setOut('sm2-cipher-out', '错误：' + e.message, 'err'); }
+      };
+
+      $('btn-sm2-dec').onclick = function () {
+        try {
+          var privHex = $('sm2-dec-priv').value.replace(/\s/g, '');
+          var hex = $('sm2-cipher-hex').value.replace(/\s/g, '');
+          if (privHex.length !== 64 || !hex) { setOut('sm2-cipher-out', '错误：请填写私钥与密文 hex', 'err'); return; }
+          var cipher = hexToU8(hex);
+          if (cipher.length < 96) { setOut('sm2-cipher-out', '错误：密文长度不足 96 字节', 'err'); return; }
+          var mlen = cipher.length - 96;
+          var order = parseInt($('sm2-cipher-order').value, 10) || 0;
+          var out = M._malloc(Math.max(mlen, 1));
+          var ppriv = ac(hexToU8(privHex)), pc = ac(cipher);
+          try {
+            var n = sm2decFn(ppriv.ptr, pc.ptr, pc.len, out, mlen, order);
+            if (!n) { setOut('sm2-cipher-out', '错误：解密失败（顺序/密文/私钥不匹配）', 'err'); return; }
+            var plain = new TextDecoder().decode(new Uint8Array(M.HEAPU8.buffer, out, n));
+            setOut('sm2-cipher-out', '明文：' + plain, 'ok');
+          } finally { ppriv.free(); pc.free(); M._free(out); }
+        } catch (e) { setOut('sm2-cipher-out', '错误：' + e.message, 'err'); }
+      };
+
+      $('btn-sm2-ecdh').onclick = function () {
+        try {
+          var privHex = $('sm2-ecdh-priv').value.replace(/\s/g, '');
+          var peerHex = $('sm2-ecdh-peer').value.replace(/\s/g, '');
+          if (privHex.length !== 64 || peerHex.length !== 128) {
+            setOut('sm2-ecdh-out', '错误：私钥 64 hex，对方公钥 128 hex', 'err'); return;
+          }
+          var out = M._malloc(32), ppriv = ac(hexToU8(privHex)), ppeer = ac(hexToU8(peerHex));
+          try {
+            if (!sm2ecdhFn(ppriv.ptr, ppeer.ptr, out)) { setOut('sm2-ecdh-out', '错误：计算失败', 'err'); return; }
+            var el = $('sm2-ecdh-out');
+            el.textContent = u8ToHex(new Uint8Array(M.HEAPU8.buffer, out, 32));
+            el.className = 'out-box copy-wrap ok';
+          } finally { ppriv.free(); ppeer.free(); M._free(out); }
+        } catch (e) { setOut('sm2-ecdh-out', '错误：' + e.message, 'err'); }
+      };
+    })
+    .catch(function (e) {
+      setErrBanner('加载失败：' + (e && e.message ? e.message : String(e)));
+    });
+})();
+  </script>
+</body>
+
+</html>

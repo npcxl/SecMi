@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="SM2 算法说明：签名验签、加解密、ECDH，与在线工具、gm.js 接口对应关系。"/>
+<title>SM2 — SECMI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .code-block { background: #111c2a; color: #eaf1ff; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #c3c5d9; border-radius: 10px; }
+</style>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#0047cf",
+        "primary-container": "#165dff",
+        "on-surface": "#111c2a",
+        "on-surface-variant": "#434656",
+        "surface-bright": "#f8f9ff",
+        "surface-container-low": "#eff4ff",
+        "surface-container-lowest": "#ffffff",
+        "outline-variant": "#c3c5d9",
+        "inverse-surface": "#263140",
+        "on-secondary-container": "#5f636c",
+        "tertiary": "#894000"
+      },
+      borderRadius: { DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem" }
+    }
+  }
+};
+</script>
+</head>
+<body class="bg-[#f8f9ff] text-[#111c2a] antialiased">
+<header class="fixed top-0 w-full z-50 bg-white/85 backdrop-blur-xl border-b border-slate-200/30 shadow-sm">
+  <div class="flex justify-between items-center h-16 px-6 lg:px-8 max-w-[1920px] mx-auto">
+    <div class="flex items-center gap-6 lg:gap-8">
+      <a href="../../index.html" class="text-lg font-bold tracking-tight text-slate-900 no-underline hover:text-primary">SECMI</a>
+      <nav class="hidden md:flex items-center gap-5 text-sm">
+        <a class="text-slate-600 hover:text-slate-900 transition-colors no-underline" href="../../index.html">首页</a>
+        <a class="text-slate-600 hover:text-slate-900 transition-colors no-underline" href="../../tool.html">在线工具</a>
+        <a class="text-slate-600 hover:text-slate-900 transition-colors no-underline" href="../../docs.html">使用说明</a>
+        <a class="text-slate-600 hover:text-slate-900 transition-colors no-underline" href="../../api.html">开发者接口</a>
+      </nav>
+    </div>
+    <a href="../../tool.html#sec-sm2" class="bg-gradient-to-br from-primary to-primary-container text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 no-underline shrink-0">打开 SM2 工具</a>
+  </div>
+</header>
+
+<div class="flex pt-16 min-h-screen">
+  <aside class="hidden lg:flex w-64 shrink-0 fixed left-0 top-16 h-[calc(100vh-4rem)] bg-slate-50 flex-col p-4 border-r border-slate-200/30 text-sm font-medium overflow-y-auto">
+    <div class="px-4 py-5 mb-2">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-white">
+          <span class="material-symbols-outlined text-lg">enhanced_encryption</span>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-slate-900 leading-tight">算法文档</h2>
+          <p class="text-[10px] text-slate-500 uppercase tracking-widest">SM2 / SM3 / SM4</p>
+        </div>
+      </div>
+    </div>
+    <nav class="flex-1 space-y-1">
+      <a class="flex items-center gap-3 px-4 py-2 bg-white text-[#165DFF] shadow-sm rounded-lg" href="index.html">
+        <span class="material-symbols-outlined text-lg">enhanced_encryption</span>
+        <span>SM2 非对称</span>
+      </a>
+      <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors no-underline" href="../sm3/index.html">
+        <span class="material-symbols-outlined text-lg">fingerprint</span>
+        <span>SM3 摘要</span>
+      </a>
+      <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors no-underline" href="../sm4/index.html">
+        <span class="material-symbols-outlined text-lg">lock</span>
+        <span>SM4 对称</span>
+      </a>
+      <div class="pt-4 pb-2 px-4"><span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">站点</span></div>
+      <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg no-underline" href="../index.html">
+        <span class="material-symbols-outlined text-lg">menu_book</span>
+        <span>文档中心</span>
+      </a>
+      <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg no-underline" href="../../docs.html">
+        <span class="material-symbols-outlined text-lg">help</span>
+        <span>使用说明</span>
+      </a>
+      <a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg no-underline" href="../../api.html">
+        <span class="material-symbols-outlined text-lg">code</span>
+        <span>开发者接口</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="lg:ml-64 flex-1 flex flex-col lg:flex-row min-w-0">
+    <section class="flex-1 overflow-y-auto bg-[#f8f9ff] px-6 lg:px-12 py-10">
+      <div class="max-w-3xl">
+        <nav class="flex flex-wrap items-center gap-1 text-sm text-on-secondary-container mb-8">
+          <a href="../index.html" class="text-slate-500 hover:text-primary no-underline">文档</a>
+          <span class="material-symbols-outlined text-xs text-slate-400">chevron_right</span>
+          <span class="text-primary font-medium">SM2</span>
+        </nav>
+        <h1 class="text-3xl lg:text-4xl font-extrabold text-on-surface tracking-tight mb-4">SM2 数字签名与公钥加密</h1>
+        <p class="text-base lg:text-lg text-on-surface-variant leading-relaxed mb-10">
+          SM2 是椭圆曲线公钥算法，可用于<strong>数字签名与验签</strong>、<strong>密钥协商（ECDH）</strong>、<strong>公钥加密 / 私钥解密</strong>。本工具在浏览器本地完成运算，不提供任何远程 HTTP 接口。
+        </p>
+
+        <div class="mb-12">
+          <h2 class="text-xl font-bold text-on-surface mb-4 flex items-center gap-2">
+            <span class="w-1.5 h-6 bg-primary rounded-full"></span>
+            在在线工具里怎么用
+          </h2>
+          <p class="text-sm text-on-surface-variant mb-4">打开 <a href="../../tool.html#sec-sm2" class="text-primary font-semibold no-underline hover:underline">在线工具 → SM2 区块</a>，按页面提示填写：用户标识（ID）、消息、随机数 k、公私钥等，点击对应按钮即可得到签名 (r,s)、密文或共享密钥。</p>
+          <div class="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border border-outline-variant/20">
+            <span class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded">本地</span>
+            <code class="text-on-surface font-mono text-sm">浏览器内计算 · 无服务端 URL</code>
+          </div>
+        </div>
+
+        <div class="mb-12">
+          <h2 class="text-xl font-bold text-on-surface mb-6">本地模块接口（gm.c / gm.js）</h2>
+          <p class="text-sm text-on-surface-variant mb-4">下表为 C 函数名；在页面里用 <code class="bg-slate-100 px-1 rounded">Module.cwrap('gm_xxx', …)</code>（不要写前导下划线）。<strong class="text-on-surface">引入脚本 + 完整调用示例</strong>请去 <a href="../../api.html#gm-js-copy" class="text-primary font-semibold no-underline">开发者接口 → 复制使用</a>。</p>
+          <div class="overflow-hidden rounded-xl border border-outline-variant/30">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead class="bg-surface-container-low text-on-secondary-container text-xs font-bold uppercase tracking-wider">
+                <tr>
+                  <th class="px-4 lg:px-6 py-3">函数</th>
+                  <th class="px-4 lg:px-6 py-3">作用</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-slate-100">
+                <tr>
+                  <td class="px-4 lg:px-6 py-3 font-mono text-primary">gm_sm2_generate_keypair</td>
+                  <td class="px-4 lg:px-6 py-3 text-on-surface-variant">由 32 字节熵生成私钥与未压缩公钥（64 字节 X‖Y）。</td>
+                </tr>
+                <tr>
+                  <td class="px-4 lg:px-6 py-3 font-mono text-primary">gm_sm2_sign / gm_sm2_verify</td>
+                  <td class="px-4 lg:px-6 py-3 text-on-surface-variant">对消息签名、验签；需 ID 与长度参与 ZA 计算。</td>
+                </tr>
+                <tr>
+                  <td class="px-4 lg:px-6 py-3 font-mono text-primary">gm_sm2_encrypt / gm_sm2_decrypt</td>
+                  <td class="px-4 lg:px-6 py-3 text-on-surface-variant">公钥加密、私钥解密；<code class="text-xs bg-slate-50 px-1 rounded">order_c1c3c2</code> 控制密文分量顺序。</td>
+                </tr>
+                <tr>
+                  <td class="px-4 lg:px-6 py-3 font-mono text-primary">gm_sm2_ecdh_shared_key</td>
+                  <td class="px-4 lg:px-6 py-3 text-on-surface-variant">ECDH 派生 32 字节共享密钥。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="mb-12">
+          <h2 class="text-xl font-bold text-on-surface mb-6">输出数据形态</h2>
+          <div class="code-block p-5 rounded-xl font-mono text-xs lg:text-sm leading-relaxed overflow-x-auto">
+<pre class="text-slate-300"><span class="text-slate-500">// 签名成功：r、s 各 32 字节，常以十六进制展示</span>
+{
+  <span class="text-emerald-400">"r"</span>: <span class="text-orange-300">"hex 64 字符"</span>,
+  <span class="text-emerald-400">"s"</span>: <span class="text-orange-300">"hex 64 字符"</span>
+}
+<span class="text-slate-500">// 加密结果：C1C3C2 顺序由实现与 order 参数约定，联调时请与对端一致</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="w-full lg:w-[380px] shrink-0 bg-inverse-surface flex flex-col border-t lg:border-t-0 lg:border-l border-slate-800 min-h-[280px] lg:min-h-0">
+      <div class="p-5 border-b border-slate-800">
+        <span class="text-xs font-bold text-white">复制即可用</span>
+        <p class="text-[11px] text-slate-400 mt-2 leading-relaxed">怎么写 <code class="text-slate-300">&lt;script src="…gm.js"&gt;</code>、怎么等 Module 就绪、怎么用 cwrap 算一次 SM3，都在开发者接口页用<strong class="text-white">一段完整 HTML</strong>列好了，点按钮整段复制。</p>
+      </div>
+      <div class="flex-1 p-5 flex flex-col justify-center">
+        <a href="../../api.html#gm-js-copy" class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-white no-underline hover:opacity-90">
+          <span class="material-symbols-outlined text-lg">content_copy</span>
+          去复制引入 + 示例代码
+        </a>
+        <a href="../../api.html#gm-js-intro" class="mt-4 text-center text-xs text-sky-400 no-underline hover:underline">先看「怎么引入 gm.js」</a>
+      </div>
+      <div class="p-5 bg-slate-900/50 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+        在线工具底部的 Node/Python 等是第三方库写法，和本仓库 <code class="text-slate-300">gm.js</code> 不一定一致。
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>
