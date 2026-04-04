@@ -29,6 +29,11 @@
     .code-home .c-type { color: #82aaff; }
     .code-home .c-fn { color: #c3e88d; }
     .code-home .c-cmt { color: #64748b; }
+    .code-home-wrap {
+      max-height: min(70vh, 560px);
+      overflow: auto;
+      border-radius: 0.75rem;
+    }
   </style>
 </head>
 <body class="min-h-screen hero-gradient text-slate-900 antialiased">
@@ -72,7 +77,7 @@
           C 语言实现逻辑
         </h2>
         <ul class="text-sm text-slate-600 space-y-2.5 leading-relaxed list-disc pl-5">
-          <li><strong class="text-slate-800">入口与导出</strong>：<code class="text-slate-800 bg-slate-100 px-1 rounded">gm.c</code> 作为 Emscripten 与本地共用的统一入口，通过 <code class="text-slate-800 bg-slate-100 px-1 rounded">GM_KEEPALIVE</code> 导出可供 JS/WASM 调用的 C API（如 <code class="text-slate-800 bg-slate-100 px-1 rounded">gm_sm3_hash</code>、<code class="text-slate-800 bg-slate-100 px-1 rounded">gm_sm2_sign</code> 等）。</li>
+          <li><strong class="text-slate-800">入口与导出</strong>：<code class="text-slate-800 bg-slate-100 px-1 rounded">gm.c</code> 作为 Emscripten 与本地共用的统一入口，通过 <code class="text-slate-800 bg-slate-100 px-1 rounded">GM_KEEPALIVE</code> 导出可供前端（经 <code class="text-slate-800 bg-slate-100 px-1 rounded">gm.js</code>）调用的 C API（如 <code class="text-slate-800 bg-slate-100 px-1 rounded">gm_sm3_hash</code>、<code class="text-slate-800 bg-slate-100 px-1 rounded">gm_sm2_sign</code> 等）。</li>
           <li><strong class="text-slate-800">算法模块</strong>：<code class="text-slate-800 bg-slate-100 px-1 rounded">sm2.c</code> / <code class="text-slate-800 bg-slate-100 px-1 rounded">sm3.c</code> / <code class="text-slate-800 bg-slate-100 px-1 rounded">sm4.c</code> 分别实现椭圆曲线、杂凑与分组密码；SM2 侧依赖 <code class="text-slate-800 bg-slate-100 px-1 rounded">sm2_z256</code> 等域运算，与国标（如 GB/T 32918、SM3/SM4 标准）对齐。</li>
           <li><strong class="text-slate-800">到浏览器</strong>：构建脚本将上述源码编译为单文件 <code class="text-slate-800 bg-slate-100 px-1 rounded">gm.js</code>，在线工具页仅负责输入校验与 UI，运算在编译后的模块中完成。</li>
         </ul>
@@ -91,17 +96,76 @@
           <span class="material-symbols-outlined text-[#165DFF]">code</span>
           核心 C API 节选（<code class="font-mono text-sm font-normal text-slate-700">gm.c</code>）
         </h2>
-        <p class="text-sm text-slate-600">以下为对外导出函数的一部分，展示从 C 层如何接到 SM3 与 SM2 密钥生成逻辑（完整实现见仓库源码）。</p>
-        <pre class="code-home text-left" aria-label="gm.c 节选"><span class="c-cmt">/* Emscripten / 本地共用入口：对外导出密码学算法 C API（SECMI / gm.c） */</span>
+        <p class="text-sm text-slate-600">下面按模块摘录 <code class="text-slate-800 bg-slate-100 px-1 rounded text-xs">gm.c</code> 中与构建脚本 <code class="text-slate-800 bg-slate-100 px-1 rounded text-xs">EXPORTED_FUNCTIONS</code> 一致的对外接口：SM3、SM4（含 CBC 与 S 盒版本）、SM2（密钥、签名、加解密、ECDH）。行内仅做转发，实现分别在 <code class="text-slate-800 bg-slate-100 px-1 rounded text-xs">sm3.c</code> / <code class="text-slate-800 bg-slate-100 px-1 rounded text-xs">sm4.c</code> / <code class="text-slate-800 bg-slate-100 px-1 rounded text-xs">sm2.c</code>；完整文件见仓库。</p>
+        <div class="code-home-wrap border border-slate-700/50">
+        <pre class="code-home text-left rounded-none border-0" aria-label="gm.c 节选"><span class="c-cmt">/* gm.c — Emscripten / 本地共用入口，对外导出密码学 C API（SECMI） */</span>
+
+<span class="c-cmt">/* ---------- SM3：杂凑、HMAC ---------- */</span>
 <span class="c-kw">GM_KEEPALIVE</span> <span class="c-type">void</span> <span class="c-fn">gm_sm3_hash</span>(<span class="c-kw">const</span> <span class="c-type">uint8_t</span> *msg, <span class="c-type">size_t</span> len, <span class="c-type">uint8_t</span> out[<span class="c-type">32</span>])
 {
     <span class="c-fn">sm3_digest</span>(msg, len, out);
 }
 
+<span class="c-kw">GM_KEEPALIVE</span> <span class="c-type">void</span> <span class="c-fn">gm_sm3_hmac</span>(<span class="c-kw">const</span> <span class="c-type">uint8_t</span> *key, <span class="c-type">size_t</span> key_len,
+                          <span class="c-kw">const</span> <span class="c-type">uint8_t</span> *msg, <span class="c-type">size_t</span> msg_len, <span class="c-type">uint8_t</span> out[<span class="c-type">32</span>])
+{
+    <span class="c-fn">sm3_hmac</span>(key, key_len, msg, msg_len, out);
+}
+
+<span class="c-cmt">/* ---------- SM4：S 盒版本、CBC PKCS#7（ECB/CTR/OFB/CFB 等同文件内另有导出） ---------- */</span>
+<span class="c-kw">GM_KEEPALIVE</span> <span class="c-type">void</span> <span class="c-fn">gm_sm4_set_sbox_version</span>(<span class="c-type">int</span> ver)
+{
+    <span class="c-fn">sm4_set_sbox_version</span>(ver == <span class="c-type">1</span> ? SM4_SBOX_VER_LEGACY_PRINT : SM4_SBOX_VER_MODERN);
+}
+
+<span class="c-kw">GM_KEEPALIVE</span> <span class="c-type">size_t</span> <span class="c-fn">gm_sm4_cbc_encrypt</span>(<span class="c-kw">const</span> <span class="c-type">uint8_t</span> key[<span class="c-type">16</span>], <span class="c-kw">const</span> <span class="c-type">uint8_t</span> iv[<span class="c-type">16</span>], <span class="c-kw">const</span> <span class="c-type">uint8_t</span> *in,
+                                  <span class="c-type">size_t</span> in_len, <span class="c-type">uint8_t</span> *out)
+{
+    <span class="c-kw">return</span> <span class="c-fn">sm4_cbc_encrypt_pkcs7</span>(key, iv, in, in_len, out);
+}
+
+<span class="c-kw">GM_KEEPALIVE</span> <span class="c-type">size_t</span> <span class="c-fn">gm_sm4_cbc_decrypt</span>(<span class="c-kw">const</span> <span class="c-type">uint8_t</span> key[<span class="c-type">16</span>], <span class="c-kw">const</span> <span class="c-type">uint8_t</span> iv[<span class="c-type">16</span>], <span class="c-kw">const</span> <span class="c-type">uint8_t</span> *in,
+                                   <span class="c-type">size_t</span> in_len, <span class="c-type">uint8_t</span> *out, <span class="c-type">size_t</span> out_cap)
+{
+    <span class="c-kw">return</span> <span class="c-fn">sm4_cbc_decrypt_pkcs7</span>(key, iv, in, in_len, out, out_cap);
+}
+
+<span class="c-cmt">/* ---------- SM2：密钥、签名、公钥加解密、ECDH ---------- */</span>
 <span class="c-kw">GM_KEEPALIVE</span> <span class="c-type">int</span> <span class="c-fn">gm_sm2_generate_keypair</span>(<span class="c-kw">const</span> <span class="c-type">uint8_t</span> entropy[<span class="c-type">32</span>], <span class="c-type">uint8_t</span> priv[<span class="c-type">32</span>], <span class="c-type">uint8_t</span> pub[<span class="c-type">64</span>])
 {
     <span class="c-kw">return</span> <span class="c-fn">sm2_generate_keypair</span>(entropy, priv, pub);
+}
+
+<span class="c-kw">GM_KEEPALIVE</span> <span class="c-type">int</span> <span class="c-fn">gm_sm2_sign</span>(<span class="c-kw">const</span> <span class="c-type">uint8_t</span> priv[<span class="c-type">32</span>], <span class="c-kw">const</span> <span class="c-type">uint8_t</span> *msg, <span class="c-type">size_t</span> msg_len,
+                         <span class="c-kw">const</span> <span class="c-type">uint8_t</span> pub[<span class="c-type">64</span>], <span class="c-kw">const</span> <span class="c-type">uint8_t</span> *id, <span class="c-type">size_t</span> id_len,
+                         <span class="c-kw">const</span> <span class="c-type">uint8_t</span> rand_k[<span class="c-type">32</span>], <span class="c-type">uint8_t</span> r[<span class="c-type">32</span>], <span class="c-type">uint8_t</span> s[<span class="c-type">32</span>])
+{
+    <span class="c-kw">return</span> <span class="c-fn">sm2_sign</span>(priv, msg, msg_len, pub, id, id_len, rand_k, r, s);
+}
+
+<span class="c-kw">GM_KEEPALIVE</span> <span class="c-type">int</span> <span class="c-fn">gm_sm2_verify</span>(<span class="c-kw">const</span> <span class="c-type">uint8_t</span> pub[<span class="c-type">64</span>], <span class="c-kw">const</span> <span class="c-type">uint8_t</span> *msg, <span class="c-type">size_t</span> msg_len,
+                            <span class="c-kw">const</span> <span class="c-type">uint8_t</span> *id, <span class="c-type">size_t</span> id_len, <span class="c-kw">const</span> <span class="c-type">uint8_t</span> r[<span class="c-type">32</span>], <span class="c-kw">const</span> <span class="c-type">uint8_t</span> s[<span class="c-type">32</span>])
+{
+    <span class="c-kw">return</span> <span class="c-fn">sm2_verify</span>(pub, msg, msg_len, id, id_len, r, s);
+}
+
+<span class="c-kw">GM_KEEPALIVE</span> <span class="c-type">size_t</span> <span class="c-fn">gm_sm2_encrypt</span>(<span class="c-kw">const</span> <span class="c-type">uint8_t</span> pub[<span class="c-type">64</span>], <span class="c-kw">const</span> <span class="c-type">uint8_t</span> *msg, <span class="c-type">size_t</span> msg_len,
+                               <span class="c-kw">const</span> <span class="c-type">uint8_t</span> rand_k[<span class="c-type">32</span>], <span class="c-type">uint8_t</span> *out, <span class="c-type">size_t</span> out_cap, <span class="c-type">int</span> order_c1c3c2)
+{
+    <span class="c-kw">return</span> <span class="c-fn">sm2_encrypt</span>(pub, msg, msg_len, rand_k, out, out_cap, order_c1c3c2);
+}
+
+<span class="c-kw">GM_KEEPALIVE</span> <span class="c-type">size_t</span> <span class="c-fn">gm_sm2_decrypt</span>(<span class="c-kw">const</span> <span class="c-type">uint8_t</span> priv[<span class="c-type">32</span>], <span class="c-kw">const</span> <span class="c-type">uint8_t</span> *cipher, <span class="c-type">size_t</span> cipher_len,
+                               <span class="c-type">uint8_t</span> *out, <span class="c-type">size_t</span> out_cap, <span class="c-type">int</span> order_c1c3c2)
+{
+    <span class="c-kw">return</span> <span class="c-fn">sm2_decrypt</span>(priv, cipher, cipher_len, out, out_cap, order_c1c3c2);
+}
+
+<span class="c-kw">GM_KEEPALIVE</span> <span class="c-type">int</span> <span class="c-fn">gm_sm2_ecdh_shared_key</span>(<span class="c-kw">const</span> <span class="c-type">uint8_t</span> priv[<span class="c-type">32</span>], <span class="c-kw">const</span> <span class="c-type">uint8_t</span> peer_pub[<span class="c-type">64</span>], <span class="c-type">uint8_t</span> out[<span class="c-type">32</span>])
+{
+    <span class="c-kw">return</span> <span class="c-fn">sm2_ecdh_shared_key</span>(priv, peer_pub, out);
 }</pre>
+        </div>
       </section>
 
       <section class="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 p-6 sm:p-8 text-center space-y-4">
@@ -112,24 +176,15 @@
         <p class="text-sm text-slate-600 max-w-xl mx-auto">
           完整 C 源码、构建脚本与 <code class="text-slate-800 bg-white px-1 rounded border border-slate-200/80 text-xs">web/</code> 静态页均在 GitHub 公开；欢迎 Issue、PR 与代码审阅。
         </p>
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a id="open-source-repo"
-             href="https://github.com/npcxl/SecMi"
-             target="_blank"
-             rel="noopener noreferrer"
-             class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-slate-800">
-            <span class="material-symbols-outlined text-lg">open_in_new</span>
-            打开 GitHub 仓库
-          </a>
-          <a href="https://github.com/npcxl/SecMi.git"
-             target="_blank"
-             rel="noopener noreferrer"
-             class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50">
-            <span class="material-symbols-outlined text-lg text-slate-600">terminal</span>
-            HTTPS 克隆地址
-          </a>
-        </div>
-        <p class="text-xs text-slate-500 font-mono break-all max-w-lg mx-auto">git clone https://github.com/npcxl/SecMi.git</p>
+        <a id="open-source-repo"
+           href="https://github.com/npcxl/SecMi"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-slate-800">
+          <span class="material-symbols-outlined text-lg">open_in_new</span>
+          打开 GitHub 仓库（源码与开源协议）
+        </a>
+        <p class="text-xs text-slate-500"><span class="text-slate-600">HTTPS 克隆：</span><code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono break-all">git clone https://github.com/npcxl/SecMi.git</code></p>
       </section>
 
       <p class="text-center text-sm text-slate-500 pb-4">
