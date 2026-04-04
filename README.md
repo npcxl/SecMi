@@ -4,6 +4,8 @@
 
 **仓库地址：** [https://github.com/npcxl/SecMi](https://github.com/npcxl/SecMi)
 
+### 克隆下来后 点开/web/index.html进行调试使用
+
 ```bash
 git clone https://github.com/npcxl/SecMi.git
 cd SecMi
