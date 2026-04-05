@@ -2,6 +2,8 @@
 
 **SECMI** 提供 SM2、SM3、SM4 等能力的 **纯 C 实现**，经 [Emscripten](https://emscripten.org/) 编译为单文件 **`gm.js`**，可在浏览器中通过 JavaScript 调用，配套静态页面提供在线工具与说明。
 
+### 克隆下来后 点开/web/index.html进行调试使用
+
 **仓库地址：** [https://github.com/npcxl/SecMi](https://github.com/npcxl/SecMi)
 
 ```bash
