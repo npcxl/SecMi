@@ -125,6 +125,126 @@
       background: rgba(255, 255, 255, 0.16);
     }
 
+    #doc.doc-article .doc-code-tabs {
+      --doc-tab-accent: #1a56db;
+      --doc-tab-accent-hover: #1447c0;
+      margin: 0.875rem 0 1.5rem;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 6px 20px -4px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+    }
+
+    #doc.doc-article .doc-code-tablist {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      padding: 10px 12px 12px;
+      background: linear-gradient(180deg, #fafbfc 0%, #f1f5f9 100%);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+    }
+
+    #doc.doc-article .doc-code-tab {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      padding: 8px 16px;
+      min-height: 36px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: transparent;
+      color: #64748b;
+      cursor: pointer;
+      font-family: inherit;
+      line-height: 1.2;
+      transition:
+        color 0.16s ease,
+        background 0.16s ease,
+        border-color 0.16s ease,
+        box-shadow 0.16s ease;
+    }
+
+    #doc.doc-article .doc-code-tab:hover {
+      color: #334155;
+      background: rgba(255, 255, 255, 0.85);
+      border-color: #e2e8f0;
+    }
+
+    #doc.doc-article .doc-code-tab:focus {
+      outline: none;
+    }
+
+    #doc.doc-article .doc-code-tab:focus-visible {
+      outline: 2px solid var(--doc-tab-accent);
+      outline-offset: 2px;
+    }
+
+    #doc.doc-article .doc-code-tab[aria-selected="true"] {
+      color: var(--doc-tab-accent);
+      background: #fff;
+      border-color: #e2e8f0;
+      box-shadow:
+        0 1px 3px rgba(15, 23, 42, 0.08),
+        0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+    }
+
+    #doc.doc-article .doc-code-tab[aria-selected="true"]:hover {
+      color: var(--doc-tab-accent-hover);
+      border-color: #cbd5e1;
+    }
+
+    #doc.doc-article .doc-code-tabpanel {
+      margin: 0;
+      padding: 0;
+      background: #0f172a;
+    }
+
+    #doc.doc-article .doc-code-tabpanel[hidden] {
+      display: none !important;
+    }
+
+    #doc.doc-article .doc-code-tabs .doc-code-tabpanel .doc-code-wrap {
+      margin: 0;
+    }
+
+    #doc.doc-article .doc-code-tabs .doc-copy-btn {
+      top: 8px;
+      right: 10px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(15, 23, 42, 0.35);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    #doc.doc-article .doc-code-tabs .doc-copy-btn:hover {
+      background: rgba(30, 41, 59, 0.55);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    #doc.doc-article .doc-code-tabs .doc-code-tabpanel pre[class*="language-"] {
+      margin: 0;
+      border-radius: 0;
+      border: none;
+      border-top: 1px solid rgba(148, 163, 184, 0.12);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #doc.doc-article .doc-code-tab {
+        transition: none;
+      }
+    }
+
     #doc.doc-article pre[class*="language-"] {
       margin: 0;
       padding: 2.25rem 1rem 1rem 1rem;
@@ -593,7 +713,7 @@
       <nav class="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-slate-600">
         <a class="hover:text-slate-900" href="../index.html">首页</a>
         <a class="text-primary font-semibold" href="#tool">在线工具</a>
-        <a class="hover:text-slate-900" href="#doc-functions">函数与方法</a>
+        <button type="button" class="hover:text-slate-900 text-slate-600 js-contact-open">联系我</button>
       </nav>
     </div>
   </header>
@@ -621,16 +741,11 @@
           <span>SM4 大文件</span>
         </a>
         <div class="pt-3 mt-2 border-t border-slate-200/60">
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 mb-1">本页（SM3）</p>
+          <button type="button" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 w-full text-left js-contact-open">
+            <span class="material-symbols-outlined text-[20px]" aria-hidden="true">mail</span>
+            <span>联系我</span>
+          </button>
         </div>
-        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100" href="#tool">
-          <span class="material-symbols-outlined text-[20px]">touch_app</span>
-          <span>在线工具</span>
-        </a>
-        <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100" href="#doc-functions">
-          <span class="material-symbols-outlined text-[20px]">functions</span>
-          <span>函数与方法</span>
-        </a>
       </nav>
     </aside>
     <!-- Main Content Area -->
@@ -714,19 +829,77 @@
               <section>
                 <h2>1. cwrap 声明</h2>
                 <p class="text-sm text-slate-600 mb-2">在 <code class="font-mono text-xs">Module</code> 就绪后声明；本页 2 个导出符号。</p>
-                <div class="doc-code-wrap">
-                  <button type="button" class="doc-copy-btn">复制</button>
-                  <pre class="language-javascript"><code class="language-javascript">// 摘要与 HMAC（与页底脚本一致）
+                <div class="doc-code-tabs" data-doc-tabs>
+                  <div class="doc-code-tablist" role="tablist" aria-label="示例代码">
+                    <button type="button" class="doc-code-tab" role="tab" aria-selected="true">JS</button>
+                    <button type="button" class="doc-code-tab" role="tab" aria-selected="false">Vue 3</button>
+                    <button type="button" class="doc-code-tab" role="tab" aria-selected="false">React 18</button>
+                  </div>
+                  <div class="doc-code-tabpanel" role="tabpanel">
+                    <div class="doc-code-wrap">
+                      <button type="button" class="doc-copy-btn">复制</button>
+                      <pre class="language-javascript"><code class="language-javascript">// 摘要与 HMAC（与页底脚本一致）
 var sm3fn = M.cwrap('gm_sm3_hash', null, ['number', 'number', 'number']);
 var sm3hmacFn = M.cwrap('gm_sm3_hmac', null, ['number', 'number', 'number', 'number', 'number']);</code></pre>
+                    </div>
+                  </div>
+                  <div class="doc-code-tabpanel" role="tabpanel" hidden>
+                    <div class="doc-code-wrap">
+                      <button type="button" class="doc-copy-btn">复制</button>
+                      <pre class="language-javascript"><code class="language-javascript">import { shallowRef, onMounted } from 'vue'
+import * as gm from './gm.js'
+
+const Module = shallowRef(null)
+const sm3fn = shallowRef(null)
+const sm3hmacFn = shallowRef(null)
+
+onMounted(async () => {
+  const M = await gm.default()
+  Module.value = M
+  sm3fn.value = M.cwrap('gm_sm3_hash', null, ['number', 'number', 'number'])
+  sm3hmacFn.value = M.cwrap('gm_sm3_hmac', null, ['number', 'number', 'number', 'number', 'number'])
+})</code></pre>
+                    </div>
+                  </div>
+                  <div class="doc-code-tabpanel" role="tabpanel" hidden>
+                    <div class="doc-code-wrap">
+                      <button type="button" class="doc-copy-btn">复制</button>
+                      <pre class="language-jsx"><code class="language-jsx">import { useEffect, useRef } from 'react'
+import * as gm from './gm.js'
+
+export function useSm3Cwrap() {
+  const api = useRef(null)
+  useEffect(() => {
+    let cancelled = false
+    gm.default().then((M) => {
+      if (cancelled) return
+      api.current = {
+        M,
+        sm3fn: M.cwrap('gm_sm3_hash', null, ['number', 'number', 'number']),
+        sm3hmacFn: M.cwrap('gm_sm3_hmac', null, ['number', 'number', 'number', 'number', 'number']),
+      }
+    })
+    return () => { cancelled = true }
+  }, [])
+  return api
+}</code></pre>
+                    </div>
+                  </div>
                 </div>
               </section>
               <section>
                 <h2>2. SM3 摘要 gm_sm3_hash</h2>
                 <p class="text-sm text-slate-600 mb-2">消息为 UTF-8 字节；输出 32 字节摘要，展示为 64 hex。</p>
-                <div class="doc-code-wrap">
-                  <button type="button" class="doc-copy-btn">复制</button>
-                  <pre class="language-javascript"><code class="language-javascript">// 与「计算 SM3」按钮逻辑一致
+                <div class="doc-code-tabs" data-doc-tabs>
+                  <div class="doc-code-tablist" role="tablist" aria-label="示例代码">
+                    <button type="button" class="doc-code-tab" role="tab" aria-selected="true">JS</button>
+                    <button type="button" class="doc-code-tab" role="tab" aria-selected="false">Vue 3</button>
+                    <button type="button" class="doc-code-tab" role="tab" aria-selected="false">React 18</button>
+                  </div>
+                  <div class="doc-code-tabpanel" role="tabpanel">
+                    <div class="doc-code-wrap">
+                      <button type="button" class="doc-copy-btn">复制</button>
+                      <pre class="language-javascript"><code class="language-javascript">// 与「计算 SM3」按钮逻辑一致
 var msg = new TextEncoder().encode($('sm3-msg').value);
 if (msg.length &gt; LARGE) throw new Error('消息过长');
 var out = M._malloc(32), inp = ac(msg);
@@ -737,14 +910,70 @@ try {
   inp.free();
   M._free(out);
 }</code></pre>
+                    </div>
+                  </div>
+                  <div class="doc-code-tabpanel" role="tabpanel" hidden>
+                    <div class="doc-code-wrap">
+                      <button type="button" class="doc-copy-btn">复制</button>
+                      <pre class="language-javascript"><code class="language-javascript">import { ref } from 'vue'
+
+const msgIn = ref('')
+const digestHex = ref('')
+
+function hash(M, sm3fn, LARGE) {
+  var msg = new TextEncoder().encode(msgIn.value)
+  if (msg.length &gt; LARGE) throw new Error('消息过长')
+  var out = M._malloc(32), inp = ac(msg)
+  try {
+    sm3fn(inp.ptr, inp.len, out)
+    digestHex.value = u8ToHex(new Uint8Array(M.HEAPU8.buffer, out, 32))
+  } finally {
+    inp.free()
+    M._free(out)
+  }
+}</code></pre>
+                    </div>
+                  </div>
+                  <div class="doc-code-tabpanel" role="tabpanel" hidden>
+                    <div class="doc-code-wrap">
+                      <button type="button" class="doc-copy-btn">复制</button>
+                      <pre class="language-jsx"><code class="language-jsx">import { useCallback, useState } from 'react'
+
+const api = useSm3Cwrap()
+const [msgIn, setMsgIn] = useState('')
+const [digestHex, setDigestHex] = useState('')
+
+const hash = useCallback((LARGE) => {
+  const { M, sm3fn } = api.current
+  if (!M || !sm3fn) return
+  var msg = new TextEncoder().encode(msgIn)
+  if (msg.length &gt; LARGE) throw new Error('消息过长')
+  var out = M._malloc(32), inp = ac(msg)
+  try {
+    sm3fn(inp.ptr, inp.len, out)
+    setDigestHex(u8ToHex(new Uint8Array(M.HEAPU8.buffer, out, 32)))
+  } finally {
+    inp.free()
+    M._free(out)
+  }
+}, [api, msgIn])</code></pre>
+                    </div>
+                  </div>
                 </div>
               </section>
               <section>
                 <h2>3. HMAC-SM3 gm_sm3_hmac</h2>
                 <p class="text-sm text-slate-600 mb-2">密钥与消息均为 UTF-8；输出 32 字节 MAC（64 hex）。</p>
-                <div class="doc-code-wrap">
-                  <button type="button" class="doc-copy-btn">复制</button>
-                  <pre class="language-javascript"><code class="language-javascript">var ku8 = new TextEncoder().encode($('sm3-hmac-key').value);
+                <div class="doc-code-tabs" data-doc-tabs>
+                  <div class="doc-code-tablist" role="tablist" aria-label="示例代码">
+                    <button type="button" class="doc-code-tab" role="tab" aria-selected="true">JS</button>
+                    <button type="button" class="doc-code-tab" role="tab" aria-selected="false">Vue 3</button>
+                    <button type="button" class="doc-code-tab" role="tab" aria-selected="false">React 18</button>
+                  </div>
+                  <div class="doc-code-tabpanel" role="tabpanel">
+                    <div class="doc-code-wrap">
+                      <button type="button" class="doc-copy-btn">复制</button>
+                      <pre class="language-javascript"><code class="language-javascript">var ku8 = new TextEncoder().encode($('sm3-hmac-key').value);
 var mu8 = new TextEncoder().encode($('sm3-hmac-msg').value);
 if (ku8.length + mu8.length &gt; LARGE) throw new Error('输入过长');
 var out = M._malloc(32), pk = ac(ku8), pm = ac(mu8);
@@ -756,6 +985,56 @@ try {
   pm.free();
   M._free(out);
 }</code></pre>
+                    </div>
+                  </div>
+                  <div class="doc-code-tabpanel" role="tabpanel" hidden>
+                    <div class="doc-code-wrap">
+                      <button type="button" class="doc-copy-btn">复制</button>
+                      <pre class="language-javascript"><code class="language-javascript">import { ref } from 'vue'
+
+const keyIn = ref(''), msgIn = ref('')
+const macHex = ref('')
+
+function hmac(M, sm3hmacFn, LARGE) {
+  var ku8 = new TextEncoder().encode(keyIn.value)
+  var mu8 = new TextEncoder().encode(msgIn.value)
+  if (ku8.length + mu8.length &gt; LARGE) throw new Error('输入过长')
+  var out = M._malloc(32), pk = ac(ku8), pm = ac(mu8)
+  try {
+    sm3hmacFn(pk.ptr, pk.len, pm.ptr, pm.len, out)
+    macHex.value = u8ToHex(new Uint8Array(M.HEAPU8.buffer, out, 32))
+  } finally {
+    pk.free(); pm.free(); M._free(out)
+  }
+}</code></pre>
+                    </div>
+                  </div>
+                  <div class="doc-code-tabpanel" role="tabpanel" hidden>
+                    <div class="doc-code-wrap">
+                      <button type="button" class="doc-copy-btn">复制</button>
+                      <pre class="language-jsx"><code class="language-jsx">import { useCallback, useState } from 'react'
+
+const api = useSm3Cwrap()
+const [keyIn, setKeyIn] = useState('')
+const [msgIn, setMsgIn] = useState('')
+const [macHex, setMacHex] = useState('')
+
+const hmac = useCallback((LARGE) => {
+  const { M, sm3hmacFn } = api.current
+  if (!M || !sm3hmacFn) return
+  var ku8 = new TextEncoder().encode(keyIn)
+  var mu8 = new TextEncoder().encode(msgIn)
+  if (ku8.length + mu8.length &gt; LARGE) throw new Error('输入过长')
+  var out = M._malloc(32), pk = ac(ku8), pm = ac(mu8)
+  try {
+    sm3hmacFn(pk.ptr, pk.len, pm.ptr, pm.len, out)
+    setMacHex(u8ToHex(new Uint8Array(M.HEAPU8.buffer, out, 32)))
+  } finally {
+    pk.free(); pm.free(); M._free(out)
+  }
+}, [api, keyIn, msgIn])</code></pre>
+                    </div>
+                  </div>
                 </div>
               </section>
             </div>
@@ -907,9 +1186,51 @@ try {
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
   <script>
 (function () {
   if (typeof Prism !== 'undefined') Prism.highlightAll();
+  (function initDocCodeTabs() {
+    document.querySelectorAll('[data-doc-tabs]').forEach(function (root, ri) {
+      var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+      var panels = Array.prototype.slice.call(root.querySelectorAll('[role="tabpanel"]'));
+      if (!tabs.length || tabs.length !== panels.length) return;
+      tabs.forEach(function (tab, i) {
+        var sid = 'doc-tab-' + ri + '-' + i;
+        var pid = 'doc-tabpanel-' + ri + '-' + i;
+        tab.id = sid;
+        panels[i].id = pid;
+        tab.setAttribute('aria-controls', pid);
+        panels[i].setAttribute('aria-labelledby', sid);
+      });
+      function select(i) {
+        tabs.forEach(function (t, j) {
+          var on = j === i;
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+          t.tabIndex = on ? 0 : -1;
+          panels[j].hidden = !on;
+        });
+      }
+      tabs.forEach(function (tab, i) {
+        tab.addEventListener('click', function () { select(i); });
+        tab.addEventListener('keydown', function (e) {
+          var k = e.key;
+          if (k !== 'ArrowRight' && k !== 'ArrowLeft' && k !== 'Home' && k !== 'End') return;
+          e.preventDefault();
+          var n = tabs.length;
+          var ni = i;
+          if (k === 'ArrowRight') ni = (i + 1) % n;
+          else if (k === 'ArrowLeft') ni = (i - 1 + n) % n;
+          else if (k === 'Home') ni = 0;
+          else if (k === 'End') ni = n - 1;
+          select(ni);
+          tabs[ni].focus();
+        });
+      });
+      select(0);
+    });
+  })();
+
   document.querySelectorAll('#doc .doc-copy-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var pre = btn.parentNode.querySelector('pre');
@@ -918,6 +1239,62 @@ try {
         window.showCopyToast('已复制到剪贴板');
       }).catch(function () {});
     });
+  });
+})();
+  </script>
+  <div id="contact-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/45 backdrop-blur-[2px]" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title" aria-hidden="true">
+    <button type="button" class="absolute inset-0 w-full h-full cursor-default border-0 bg-transparent" id="contact-modal-backdrop" aria-label="关闭"></button>
+    <div class="relative z-10 w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <h2 id="contact-modal-title" class="text-lg font-bold text-slate-900">联系我</h2>
+        <button type="button" id="contact-modal-close" class="rounded-lg p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-900" aria-label="关闭">
+          <span class="material-symbols-outlined text-[22px]" aria-hidden="true">close</span>
+        </button>
+      </div>
+      <div class="space-y-3 text-sm text-slate-700">
+        <p>
+          <span class="font-medium text-slate-900">邮箱：</span>
+          <a class="text-primary hover:underline break-all" href="mailto:18569795073@163.com">18569795073@163.com</a>
+        </p>
+        <p><span class="font-medium text-slate-900">微信：</span>18569795073</p>
+        <p class="text-slate-500 text-xs leading-relaxed border-t border-slate-100 pt-3 mt-2">添加微信或发邮件时请备注来意，便于回复。</p>
+      </div>
+    </div>
+  </div>
+  <script>
+(function () {
+  var modal = document.getElementById('contact-modal');
+  var backdrop = document.getElementById('contact-modal-backdrop');
+  var btnClose = document.getElementById('contact-modal-close');
+  if (!modal) return;
+
+  function openModal() {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    if (btnClose) btnClose.focus();
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.js-contact-open').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      e.preventDefault();
+      openModal();
+    });
+  });
+
+  if (backdrop) backdrop.addEventListener('click', closeModal);
+  if (btnClose) btnClose.addEventListener('click', closeModal);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
   });
 })();
   </script>
